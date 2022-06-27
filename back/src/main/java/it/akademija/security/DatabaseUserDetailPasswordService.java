@@ -19,8 +19,13 @@ public class DatabaseUserDetailPasswordService implements UserDetailsPasswordSer
 	@Autowired
 	private UserDAO userDao;
 
+	
+	public DatabaseUserDetailPasswordService(UserDetailsService userDetailsService, UserDAO userDAO) {
+		this.userDetailsService = userDetailsService;
+		this.userDao = userDAO;
+	}
+	
 	@Override
-	@Transactional
 	public UserDetails updatePassword(UserDetails userDetails, String newPassword) {
 
 		User user = userDao.findByUsername(userDetails.getUsername());
@@ -28,22 +33,6 @@ public class DatabaseUserDetailPasswordService implements UserDetailsPasswordSer
 		userDao.saveAndFlush(user);
 
 		return this.userDetailsService.loadUserByUsername(user.getUsername());
-	}
-
-	public UserDetailsService getUserDetailsService() {
-		return userDetailsService;
-	}
-
-	public void setUserDetailsService(UserDetailsService userDetailsService) {
-		this.userDetailsService = userDetailsService;
-	}
-
-	public UserDAO getUserDao() {
-		return userDao;
-	}
-
-	public void setUserDao(UserDAO userDao) {
-		this.userDao = userDao;
 	}
 
 }

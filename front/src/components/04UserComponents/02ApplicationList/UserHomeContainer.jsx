@@ -1,27 +1,41 @@
 import React, { Component } from 'react';
-
-import '../../../App.css';
 import swal from 'sweetalert';
-
 import http from '../../00Services/httpService';
 import apiEndpoint from '../../00Services/endpoint';
-
 import UserApplicationsTable from './UserApplicationsTable';
 import UserCompensationsTable from './UserCompensationsTable';
+import UserApplicationsCards from './UserApplicationsCards';
+import UserCompensationsCards from './UserCompensationsCards';
+
+const breakpoint = 768;
 
 export default class UserHomeContainer extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
       applications: [],
-      compensations: []
+      compensations: [],
+      width: ""
     }
     this.handleContractDownload = this.handleContractDownload.bind(this);
+    this.handleKindergartenContract = this.handleKindergartenContract.bind(this);
   }
+
   componentDidMount() {
     this.getUserApplications();
     this.getUserCompensations();
+    window.addEventListener("resize", this.update);
+    this.update();
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.update);
+  }
+
+  update = () => {
+    this.setState({
+      width: window.innerWidth
+    })
   }
 
   getUserApplications() {
@@ -78,8 +92,14 @@ export default class UserHomeContainer extends Component {
     });
   }
 
-  handleApplicationReview = (applicationId) => {
-    this.props.history.push(`/prasymas/priimti/${applicationId}`)
+  handleApplicationReview = (application) => {
+    application.status === "Patvirtintas" ?
+      this.props.history.push(`/sutartis/${application.id}`)
+      : this.props.history.push(`/prasymas/priimti/${application.id}`)
+  }
+
+  handleKindergartenContract = (applicationId) => {
+    this.props.history.push(`/prasymas/pasirasymui/${applicationId}`)
   }
 
   handleCompensationReview = (compensationId) => {
@@ -134,29 +154,56 @@ export default class UserHomeContainer extends Component {
             <div>
               <h6 className="ps-2 pt-3">Mano prašymai į valstybinius darželius</h6>
               <div className="row pt-2">
-                <div className="col-12 col-sm-12 col-md-12 col-lg-12">
-                  <UserApplicationsTable
-                    applications={this.state.applications}
-                    handleApplicationDelete={this.handleApplicationDelete}
-                    handleApplicationReview={this.handleApplicationReview}
-                    handleContractDownload={this.handleContractDownload}
-                  />
+                <div className="col-12">
+
+                  {this.state.width > breakpoint ?
+                    <UserApplicationsTable
+                      applications={this.state.applications}
+                      handleApplicationDelete={this.handleApplicationDelete}
+                      handleApplicationReview={this.handleApplicationReview}
+                      handleContractDownload={this.handleContractDownload}
+                      handleKindergartenContract={this.handleKindergartenContract}
+                    />
+                    :
+                    <UserApplicationsCards
+                      applications={this.state.applications}
+                      handleApplicationDelete={this.handleApplicationDelete}
+                      handleApplicationReview={this.handleApplicationReview}
+                      handleContractDownload={this.handleContractDownload}
+                      handleKindergartenContract={this.handleKindergartenContract}
+                    />
+                  }
+
                 </div>
               </div>
             </div>
+          }
+
+          {this.state.width <= breakpoint &&
+            <div><br /><br /></div>
           }
 
           {CompensationCount !== 0 &&
             <div>
               <h6 className="ps-2 pt-3">Mano prašymai dėl kompensacijos</h6>
               <div className="row pt-2">
-                <div className="col-12 col-sm-12 col-md-12 col-lg-12">
-                  <UserCompensationsTable
-                    compensations={this.state.compensations}
-                    handleCompensationDelete={this.handleCompensationDelete}
-                    handleCompensationReview={this.handleCompensationReview}
-                    handleCompensationContractReview={this.handleCompensationContractReview}
-                  />
+                <div className="col-12">
+
+                  {this.state.width > breakpoint ?
+                    <UserCompensationsTable
+                      compensations={this.state.compensations}
+                      handleCompensationDelete={this.handleCompensationDelete}
+                      handleCompensationReview={this.handleCompensationReview}
+                      handleCompensationContractReview={this.handleCompensationContractReview}
+                    />
+                    :
+                    <UserCompensationsCards
+                      compensations={this.state.compensations}
+                      handleCompensationDelete={this.handleCompensationDelete}
+                      handleCompensationReview={this.handleCompensationReview}
+                      handleCompensationContractReview={this.handleCompensationContractReview}
+                    />
+                  }
                 </div>
               </div>
             </div>

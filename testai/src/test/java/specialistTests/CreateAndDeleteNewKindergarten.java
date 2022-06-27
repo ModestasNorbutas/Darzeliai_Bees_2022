@@ -23,7 +23,7 @@ public class CreateAndDeleteNewKindergarten extends GeneralMethods {
 	 */
 	
   @Test
-  public void createAndDeleteNewKindergarten() {
+  public void createAndDeleteNewKindergarten() throws InterruptedException {
 	  successfullyCreateNewKindergarten();
 	  deleteNewKindergarten();
 	  doLogout();

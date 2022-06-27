@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -28,59 +27,44 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping(path = "/api/eile")
 public class ApplicationQueueController {
 
-	@Autowired
-	private ApplicationQueueService queueService;
+    @Autowired
+    private ApplicationQueueService queueService;
 
-	/**
-	 * Get application queue
-	 * 
-	 * @return list of sorted applications
-	 */
-	@Secured({ "ROLE_MANAGER" })
-	@GetMapping("/manager/queue")
-	@ResponseStatus(HttpStatus.OK)
-	@ApiOperation(value = "Get application queue processed")
-	public ResponseEntity<Page<ApplicationQueueInfo>> getApplicationQueueInformation(@RequestParam("page") int page,
-			@RequestParam("size") int size) {
+    /**
+     * Get page from processed application queue sorted by child surname and name,
+     * filtered by child personal code
+     * 
+     * @param page   - page number
+     * @param size   - number of entries in a page
+     * @param filter - part of child personal code from start
+     * @return page of sorted and filtered applictaion queue information
+     */
+    @Secured({ "ROLE_MANAGER" })
+    @GetMapping("/manager/queue")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "Get page from processed application queue "
+	    + "sorted by child surname and name, filtered by child personal code")
+    public ResponseEntity<Page<ApplicationQueueInfo>> getApplicationQueueInformation(
+	    @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+	    @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+	    @RequestParam(value = "filter", required = false, defaultValue = "") String filter) {
 
-		List<Order> orders = new ArrayList<>();
-		orders.add(new Order(Direction.ASC, "childSurname").ignoreCase());
-		orders.add(new Order(Direction.ASC, "childName").ignoreCase());
+	List<Order> orders = new ArrayList<>();
+	orders.add(new Order(Direction.ASC, "childSurname").ignoreCase());
+	orders.add(new Order(Direction.ASC, "childName").ignoreCase());
 
-		Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
+	Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
 
-		return new ResponseEntity<>(queueService.getApplicationQueueInformation(pageable), HttpStatus.OK);
-	}
+	return new ResponseEntity<>(queueService.getApplicationQueueInformation(pageable, filter.trim()),
+		HttpStatus.OK);
+    }
 
-	/**
-	 * Get application queue filtered by Child personal code
-	 * 
-	 * @return filtered list of sorted applications
-	 */
-	@Secured({ "ROLE_MANAGER" })
-	@GetMapping("/manager/queue/{childPersonalCode}")
-	@ResponseStatus(HttpStatus.OK)
-	@ApiOperation(value = "Get application queue processed")
-	public ResponseEntity<Page<ApplicationQueueInfo>> getApplicationQueueInformationFilteredByChildId(
-			@PathVariable String childPersonalCode, @RequestParam("page") int page, @RequestParam("size") int size) {
+    public ApplicationQueueService getQueueService() {
+	return queueService;
+    }
 
-		List<Order> orders = new ArrayList<>();
-		orders.add(new Order(Direction.ASC, "childSurname").ignoreCase());
-		orders.add(new Order(Direction.ASC, "childName").ignoreCase());
-		
-		Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
-
-		return new ResponseEntity<>(
-				queueService.getApplicationQueueInformationFilteredByChildId(childPersonalCode, pageable),
-				HttpStatus.OK);
-	}
-
-	public ApplicationQueueService getQueueService() {
-		return queueService;
-	}
-
-	public void setQueueService(ApplicationQueueService queueService) {
-		this.queueService = queueService;
-	}
+    public void setQueueService(ApplicationQueueService queueService) {
+	this.queueService = queueService;
+    }
 
 }

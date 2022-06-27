@@ -6,7 +6,7 @@ export default class UserDocumentListTable extends Component {
   columns = [
     {
       key: "uploadDate",
-      label: "Įkėlimo data",
+      label: "Įkėlimo\u00a0data",
       content: document => <span>{document.uploadDate}</span>
     },
     {
@@ -16,23 +16,22 @@ export default class UserDocumentListTable extends Component {
     },
     {
       key: "download",
-      label: "Atsisiųsti",
-      content: document => <button
-        className="btn btn-primary btn-sm btn-block"
-        onClick={() => this.props.onDownload(document)}
-      >
-        Atsisiųsti
-      </button>
-    },
-    {
-      key: "delete",
-      label: "Ištrinti pažymą",
-      content: document => <button
-        className="btn btn-outline-danger btn-sm btn-block"
-        onClick={() => this.props.onDelete(document)}
-      >
-        Ištrinti
-      </button>
+      label: "Veiksmai",
+      content: document =>
+        <div className="d-flex">
+          <button
+            className="btn btn-primary btn-sm btn-block me-2"
+            onClick={() => this.props.onDownload(document)}
+          >
+            Atsisiųsti
+          </button>
+          <button
+            className="btn btn-outline-danger btn-sm btn-block"
+            onClick={() => this.props.onDelete(document)}
+          >
+            Ištrinti
+          </button>
+        </div>
     }
   ]
 

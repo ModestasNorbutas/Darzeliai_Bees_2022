@@ -1,6 +1,8 @@
 package it.akademija.compensationApplication.kindergartenData;
 
 
+import java.util.Objects;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -21,7 +23,7 @@ public class KindergartenData {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
-	@OneToOne(cascade = { CascadeType.MERGE, CascadeType.DETACH })
+	@OneToOne
 	@JoinColumn(name = "compensation_application_id")
 	private CompensationApplication compensationApplication;
 	
@@ -153,4 +155,26 @@ public class KindergartenData {
 		this.compensationApplication = compensationApplication;
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(account, address, bankCode, bankName, code, compensationApplication, email, entityName, id,
+				phone);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		KindergartenData other = (KindergartenData) obj;
+		return Objects.equals(account, other.account) && Objects.equals(address, other.address)
+				&& Objects.equals(bankCode, other.bankCode) && Objects.equals(bankName, other.bankName)
+				&& Objects.equals(code, other.code)
+				&& Objects.equals(compensationApplication, other.compensationApplication)
+				&& Objects.equals(email, other.email) && Objects.equals(entityName, other.entityName)
+				&& Objects.equals(id, other.id) && Objects.equals(phone, other.phone);
+	}
 }

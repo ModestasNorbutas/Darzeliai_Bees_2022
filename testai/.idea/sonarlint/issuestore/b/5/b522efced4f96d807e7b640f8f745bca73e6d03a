@@ -1,8 +1,0 @@
-
-W
-java:S1874T"5Remove this use of "WebDriverWait"; it is deprecated.(ïà’‰ùÿÿÿÿ8º™ä¼ï/
-W
-java:S1874["5Remove this use of "WebDriverWait"; it is deprecated.(ïà’‰ùÿÿÿÿ8¾™ä¼ï/
-W
-java:S1874b"5Remove this use of "WebDriverWait"; it is deprecated.(ïà’‰ùÿÿÿÿ8Á™ä¼ï/
-t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(÷Ö†Úûÿÿÿÿ

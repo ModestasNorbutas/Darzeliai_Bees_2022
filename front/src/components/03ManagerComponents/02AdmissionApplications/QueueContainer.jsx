@@ -1,24 +1,27 @@
 import React, { Component } from 'react';
 import swal from 'sweetalert';
 import Pagination from "react-js-pagination";
-
-import '../../../App.css';
-
 import http from '../../00Services/httpService';
 import apiEndpoint from '../../00Services/endpoint';
-
 import QueueTable from './QueueTable';
+import QueueTableNarrow from './QueueTableNarrow';
+import QueueCards from './QueueCards';
 import QueueProcessedTable from './QueueProcessedTable';
-
+import QueueProcessedTableNarrow from './QueueProcessedTableNarrow';
+import QueueProcessedCards from './QueueProcessedCards';
 import SearchBox from '../../05ReusableComponents/SeachBox';
 import Buttons from './Buttons';
-export default class QueueContainer extends Component {
+import AdmissionReviewComponent from '../../01CommonComponents/05ApplicationReview/AdmissionReviewComponent';
 
+const breakpointLg = 1200;
+const breakpointSm = 768;
+
+export default class QueueContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
       applications: [],
-      pageSize: 12,
+      pageSize: 10, // FUNCTIONALITY NOT YET IMPLEMENTED
       currentPage: 1,
       totalPages: 0,
       totalElements: 0,
@@ -26,78 +29,76 @@ export default class QueueContainer extends Component {
       searchQuery: "",
       isActive: false,
       isLocked: false,
-      currentButtonValue: ""
+      currentButtonValue: "",
+      width: "",
+      applicationPreview: false,
+
+      id: 0,
+      submitedAt: "",
+      status: "",
+      childName: "",
+      childSurname: "",
+      childPersonalCode: "",
+      approvalDate: null,
+      birthdate: "",
+      numberInWaitingList: "",
+      mainGuardian: null,
+      additionalGuardian: null,
+      approvedKindergarten: "",
+      approvedKindergartenManager: "",
+      kindergartenChoices: null,
+      priorities: null
     }
     this.handleApplicationReview = this.handleApplicationReview.bind(this);
     this.handleContractDownload = this.handleContractDownload.bind(this);
+    this.handleReturn = this.handleReturn.bind(this);
   }
+
   componentDidMount() {
     this.getApplicationState();
+    window.addEventListener("resize", this.update);
+    this.update();
+  }
 
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.update);
+  }
+
+  update = () => {
+    this.setState({
+      width: window.innerWidth
+    })
   }
 
   getApplicationState() {
-    http
-      .get(`${apiEndpoint}/api/status`)
+    http.get(`${apiEndpoint}/api/status`)
       .then((response) => {
-
         let buttonValue = response.data.registrationActive ? "On" : "Off"
-
-        this.setState(
-          {
-            isActive: response.data.registrationActive,
-            isLocked: response.data.queueEditingLocked,
-            currentButtonValue: buttonValue
-          },
-          function () {
-            this.getApplications(this.state.currentPage, "");
-          }
-        );
+        this.setState({
+          isActive: response.data.registrationActive,
+          isLocked: response.data.queueEditingLocked,
+          currentButtonValue: buttonValue
+        });
+      }).then(() => {
+        this.getApplications(this.state.currentPage, this.state.pageSize, this.state.searchQuery);
       }).catch(() => { });
   }
 
-  getApplications(currentPage, personalCode) {
-
-    const { pageSize, isActive } = this.state;
-
-    let page = currentPage - 1;
-
-    if (page < 0) page = 0;
-
-    if (isActive) {
-      var uri = `${apiEndpoint}/api/prasymai/manager?page=${page}&size=${pageSize}`;
-
-      if (personalCode !== "") {
-        uri = `${apiEndpoint}/api/prasymai/manager/page/${personalCode}?page=${page}&size=${pageSize}`;
-
-      }
-    } else {
-      uri = `${apiEndpoint}/api/eile/manager/queue?page=${page}&size=${pageSize}`;
-
-      if (personalCode !== "") {
-        uri = `${apiEndpoint}/api/eile/manager/queue/${personalCode}?page=${page}&size=${pageSize}`;
-
-      }
-
+  getApplications(page, size, filter) {
+    let uri = `${apiEndpoint}/api/eile/manager/queue?page=${page - 1}&size=${size}&filter=${filter}`;
+    if (this.state.isActive) {
+      uri = `${apiEndpoint}/api/prasymai/manager?page=${page - 1}&size=${size}&filter=${filter}`;
     }
-
-    if (uri) {
-      http
-        .get(uri)
-        .then((response) => {
-
-          this.setState({
-            applications: response.data.content,
-            totalPages: response.data.totalPages,
-            totalElements: response.data.totalElements,
-            numberOfElements: response.data.numberOfElements,
-            currentPage: response.data.number + 1
-          });
-
-        }).catch(() => { });
-
-    }
-
+    http.get(uri)
+      .then((response) => {
+        this.setState({
+          applications: response.data.content,
+          totalPages: response.data.totalPages,
+          totalElements: response.data.totalElements,
+          numberOfElements: response.data.numberOfElements,
+          currentPage: response.data.number + 1
+        });
+      }).catch(() => { });
   }
 
   resetState() {
@@ -124,7 +125,7 @@ export default class QueueContainer extends Component {
               isActive: true,
               currentButtonValue: buttonValue
             }, function () {
-              this.getApplications(1, "");
+              this.getApplications(this.state.currentPage, this.state.pageSize, this.state.searchQuery);
             });
           }).catch(() => { });
 
@@ -135,7 +136,7 @@ export default class QueueContainer extends Component {
               isActive: false,
               currentButtonValue: buttonValue
             }, function () {
-              this.getApplications(1, "");
+              this.getApplications(this.state.currentPage, this.state.pageSize, this.state.searchQuery);
             });
           }).catch(() => { });
       }
@@ -157,7 +158,7 @@ export default class QueueContainer extends Component {
           this.setState({
             currentButtonValue: buttonValue
           }, function () {
-            this.getApplications(1, "");
+            this.getApplications(this.state.currentPage, this.state.pageSize, this.state.searchQuery);
           });
         }).catch(() => { });
     }
@@ -184,7 +185,7 @@ export default class QueueContainer extends Component {
               this.setState({
                 currentButtonValue: buttonValue
               }, function () {
-                this.getApplications(1, "");
+                this.getApplications(this.state.currentPage, this.state.pageSize, this.state.searchQuery);
               });
             }).catch((error) => {
               if (error && error.response.status === 405) {
@@ -192,9 +193,8 @@ export default class QueueContainer extends Component {
                   text: error.response.data,
                   button: "Gerai"
                 });
-                this.getApplications(1, "");
+                this.getApplications(this.state.currentPage, this.state.pageSize, this.state.searchQuery);
               }
-
             });
         }
       })
@@ -202,33 +202,27 @@ export default class QueueContainer extends Component {
   }
 
   handleSearch = (e) => {
-
-    const personalCode = e.currentTarget.value;
-    this.setState({ searchQuery: personalCode });
-    this.getApplications(1, personalCode);
+    this.setState({ searchQuery: e.currentTarget.value });
+    setTimeout(() => {
+      this.getApplications(1, this.state.pageSize, this.state.searchQuery);
+    }, 100);
   }
 
   handleDeactivate = (item) => {
-
     swal({
       text: "DĖMESIO! Šio veiksmo negalėsite atšaukti!\n\nAr tikrai norite atmesti prašymą?",
       buttons: ["Ne", "Taip"],
       dangerMode: true,
     }).then((actionConfirmed) => {
       if (actionConfirmed) {
-        const id = item.id;
-        const { currentPage, numberOfElements } = this.state;
-        const page = numberOfElements === 1 ? (currentPage - 1) : currentPage;
-
-        http
-          .post(`${apiEndpoint}/api/prasymai/manager/deactivate/${id}`)
+        http.post(`${apiEndpoint}/api/prasymai/manager/deactivate/${item.id}`)
           .then((response) => {
             swal({
               text: response.data,
               button: "Gerai"
             });
           }).then(() => {
-            this.getApplications(page, "");
+            this.getApplications(this.state.currentPage, this.state.pageSize, this.state.searchQuery);
           }).catch(error => {
             if (error && error.response.status === 405) {
               swal({
@@ -242,12 +236,39 @@ export default class QueueContainer extends Component {
   }
 
   handleApplicationReview(id) {
-    this.props.history.push(`/prasymas/priimti/${id}`);
+    http.get(`${apiEndpoint}/api/prasymai/manager/${id}`)
+      .then(response => {
+        this.setState({
+          id: response.data.id,
+          submitedAt: response.data.submitedAt,
+          status: response.data.status,
+          childName: response.data.childName,
+          childSurname: response.data.childSurname,
+          childPersonalCode: response.data.childPersonalCode,
+          approvalDate: response.data.approvalDate,
+          birthdate: response.data.birthdate,
+          numberInWaitingList: response.data.numberInWaitingList,
+          mainGuardian: response.data.mainGuardian,
+          additionalGuardian: response.data.additionalGuardian,
+          approvedKindergarten: response.data.approvedKindergarten,
+          approvedKindergartenManager: response.data.approvedKindergartenManager,
+          kindergartenChoices: response.data.kindergartenChoices,
+          priorities: response.data.priorities
+        })
+      }).catch(error => {
+        swal({
+          text: "Įvyko klaida perduodant duomenis iš serverio: " + JSON.stringify(error),
+          button: "Gerai"
+        })
+      });
+    this.setState({
+      applicationPreview: true
+    })
   }
 
   handlePageChange = (page) => {
     this.setState({ currentPage: page });
-    this.getApplications(page, this.state.searchQuery);
+    this.getApplications(page, this.state.pageSize, this.state.searchQuery);
   };
 
   handleContractDownload(data) {
@@ -272,77 +293,128 @@ export default class QueueContainer extends Component {
     })
   }
 
+  handleReturn() {
+    this.setState({
+      applicationPreview: false
+    })
+  }
+
+
 
   render() {
 
     const { applications, totalPages, searchQuery, isActive, currentButtonValue } = this.state;
-
+    let pageRange = this.state.width >= breakpointSm ? 15 : 8;
     let size = 0;
 
     if (applications !== undefined) size = applications.length;
 
     const placeholder = "Ieškoti pagal vaiko asmens kodą..."
 
-    return (
-
-      <div className="container pt-4" >
-
-        <h6 className="ps-2 pt-3">Prašymai registruotis į valstybinius darželius</h6>
-        {isActive && <p className="ps-2 pt-3">Registracija vykdoma</p>}
-        {!isActive && <p className="ps-2 pt-3">Šiuo metu registracija nevykdoma</p>}
-
-        <Buttons
-          onClick={this.handleClick}
-          onProcess={this.handleProcessQueue}
-          onConfirm={this.handleConfirmQueue}
-          isActive={isActive}
-          currentButtonValue={currentButtonValue}
-          size={size}
+    if (this.state.applicationPreview) {
+      return (
+        <AdmissionReviewComponent
+          state={this.state}
+          role={"manager"}
+          handleReturn={this.handleReturn}
         />
+      )
+    } else {
 
-        {(size > 0 || searchQuery !== "") &&
-          <SearchBox
-            value={searchQuery}
-            onSearch={this.handleSearch}
-            placeholder={placeholder}
+      return (
+        <div className="container pt-4" >
+
+          <h6 className="ps-2 pt-3">Prašymai registruotis į valstybinius darželius</h6>
+          {isActive && <p className="ps-2 pt-3">Registracija vykdoma</p>}
+          {!isActive && <p className="ps-2 pt-3">Šiuo metu registracija nevykdoma</p>}
+
+          <Buttons
+            onClick={this.handleClick}
+            onProcess={this.handleProcessQueue}
+            onConfirm={this.handleConfirmQueue}
+            isActive={isActive}
+            currentButtonValue={currentButtonValue}
+            size={size}
           />
-        }
 
-        <div className=" ">
-
-          {isActive &&
-            <QueueTable
-              applications={applications}
-              onDeactivate={this.handleDeactivate}
-              handleApplicationReview={this.handleApplicationReview}
-              handleContractDownload={this.handleContractDownload}
+          {(size > 0 || searchQuery !== "") &&
+            <SearchBox
+              value={searchQuery}
+              onSearch={this.handleSearch}
+              placeholder={placeholder}
             />
           }
 
-          {!isActive &&
-            <QueueProcessedTable
-              applications={applications}
-              onDeactivate={this.handleDeactivate}
-              handleApplicationReview={this.handleApplicationReview}
-              handleContractDownload={this.handleContractDownload}
-            />
-          }
+          <div className=" ">
 
-          {totalPages > 1 && <div className="d-flex justify-content-center">
-            <Pagination
-              itemClass="page-item"
-              linkClass="page-link"
-              activePage={this.state.currentPage}
-              itemsCountPerPage={this.state.pageSize}
-              totalItemsCount={this.state.totalElements}
-              pageRangeDisplayed={15}
-              onChange={this.handlePageChange.bind(this)}
-            />
+            {isActive &&
+              (this.state.width >= breakpointLg ?
+                <QueueTable
+                  applications={applications}
+                  onDeactivate={this.handleDeactivate}
+                  handleApplicationReview={this.handleApplicationReview}
+                  handleContractDownload={this.handleContractDownload}
+                />
+                :
+                (this.state.width >= breakpointSm ?
+                  <QueueTableNarrow
+                    applications={applications}
+                    onDeactivate={this.handleDeactivate}
+                    handleApplicationReview={this.handleApplicationReview}
+                    handleContractDownload={this.handleContractDownload}
+                  />
+                  :
+                  <QueueCards
+                    applications={applications}
+                    onDeactivate={this.handleDeactivate}
+                    handleApplicationReview={this.handleApplicationReview}
+                    handleContractDownload={this.handleContractDownload}
+                  />
+                ))
+            }
+
+            {!isActive &&
+              (this.state.width >= breakpointLg ?
+                <QueueProcessedTable
+                  applications={applications}
+                  onDeactivate={this.handleDeactivate}
+                  handleApplicationReview={this.handleApplicationReview}
+                  handleContractDownload={this.handleContractDownload}
+                />
+                :
+                (this.state.width >= breakpointSm ?
+                  <QueueProcessedTableNarrow
+                    applications={applications}
+                    onDeactivate={this.handleDeactivate}
+                    handleApplicationReview={this.handleApplicationReview}
+                    handleContractDownload={this.handleContractDownload}
+                  />
+                  :
+                  <QueueProcessedCards
+                    applications={applications}
+                    onDeactivate={this.handleDeactivate}
+                    handleApplicationReview={this.handleApplicationReview}
+                    handleContractDownload={this.handleContractDownload}
+                  />
+                ))
+            }
+
+            {totalPages > 1 && <div className="d-flex justify-content-center">
+              <Pagination
+                itemClass="page-item"
+                linkClass="page-link"
+                activePage={this.state.currentPage}
+                itemsCountPerPage={this.state.pageSize}
+                totalItemsCount={this.state.totalElements}
+                pageRangeDisplayed={pageRange}
+                onChange={this.handlePageChange.bind(this)}
+              />
+            </div>
+            }
+
           </div>
-          }
-
         </div>
-      </div>
-    )
+      )
+    }
   }
 }

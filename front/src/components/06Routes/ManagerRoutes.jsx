@@ -1,7 +1,6 @@
 import React from "react";
 import { Switch, Route } from "react-router-dom";
 import CommonErrorHandler from "../00Services/CommonErrorHandler";
-
 import ManagerNavBar from "../03ManagerComponents/00NavBar/ManagerNavBar";
 import KindergartenContainer from "../03ManagerComponents/01KindergartenList/KindergartenContainer";
 import KindergartenStatContainer from "../01CommonComponents/04KindergartenStatistics/KindergartenStatContainer";
@@ -12,6 +11,7 @@ import AdmissionReviewContainer from "../01CommonComponents/05ApplicationReview/
 import UpdateProfileFormContainer from "../01CommonComponents/03UpdateProfile/UpdateProfileFormContainer";
 import NotFound from "../01CommonComponents/02NotFound/NotFound";
 import ManagerDocumentsContainer from "../03ManagerComponents/04Documents/ManagerDocumentsContainer";
+import MapViewContainer from "../01CommonComponents/06Map/MapViewContainer";
 
 export default function ManagerRoutes() {
   return (
@@ -35,7 +35,16 @@ export default function ManagerRoutes() {
               path="/darzeliai"
               component={KindergartenContainer}
             />
-            <Route exact path="/eile" component={QueueContainer} />
+            <Route
+              exact
+              path="/eile"
+              component={QueueContainer}
+            />
+            <Route
+              exact
+              path="/zemelapis"
+              component={MapViewContainer}
+            />
             <Route
               exact
               path="/kompensacijos"

@@ -29,12 +29,11 @@ public class CreateAndDeleteNewUserPage extends AbstractObjectPage {
 	public WebElement inputAddress;
 	
 	//buttons
-//	@FindBy (id = "btnCreate")
+
 	@FindBy (xpath = "//*[@id='btnCreate'][text()='Sukurti']")
 	public WebElement createButton;
 	
 	@FindBy (xpath = "//div[2]/div/button")
-//	button[@class='swal-button swal-button--confirm']
 	public WebElement okButtonUserIsCreated;
 	
 	@FindBy (xpath = "/html/body/div[2]/div/div[2]/div/button")
@@ -71,11 +70,7 @@ public class CreateAndDeleteNewUserPage extends AbstractObjectPage {
 	public void enterAddress (String value) {
 		inputAddress.sendKeys(value);
 	}
-	
-//	public void clickCreateButton () {
-//		createButton.click();
-//	}
-	
+
 	public void clickOKButtonUserIsCreated () {
 		okButtonUserIsCreated.click();
 	}

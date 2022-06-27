@@ -2,8 +2,6 @@ package it.akademija.contracts;
 
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,27 +17,23 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import it.akademija.application.Application;
 import it.akademija.application.ApplicationDAO;
-import it.akademija.application.management.RegistrationStatusService;
 import it.akademija.journal.JournalService;
+import it.akademija.journal.ObjectType;
+import it.akademija.journal.OperationType;
 
 @RestController
 @Api(value = "contractsBlah")
 @RequestMapping(path = "/api/contract")
 public class ContractsController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ContractsController.class);
-
     @Autowired
     private ContractsService contractsService;
 
     @Autowired
-    private RegistrationStatusService registrationStatusService;
-
+    private ApplicationDAO applicationDAO;
+    
     @Autowired
     private JournalService journalService;
-
-    @Autowired
-    private ApplicationDAO applicationDAO;
 
     /**
      * Get contract for logged user by application id
@@ -54,6 +48,10 @@ public class ContractsController {
 	    @ApiParam(value = "Application id", required = true) @PathVariable Long id) {
 	
 	if (id == null) {
+	    
+	    journalService.newJournalEntry(OperationType.ERROR, id,
+		    ObjectType.CONTRACT, "Nepavyko parsisiųsti sutarties");
+	    
 		return new ResponseEntity<byte[]>(new byte[0], HttpStatus.BAD_REQUEST);
 	}
 
@@ -69,8 +67,15 @@ public class ContractsController {
 						     .getUsername();
 	}
 	if (currentUsername.equals(applicationUsername)) {
+	    
+	    journalService.newJournalEntry(OperationType.CONTRACT_DOWNLOADED, id,
+		    ObjectType.CONTRACT, "Parsisiųsta sutartis");
+	    
 	    return contractsService.generateContractPDF(id);
 	} else {
+	    journalService.newJournalEntry(OperationType.ERROR, id,
+		    ObjectType.CONTRACT, "Nepavyko parsisiųsti sutarties");
+	    
 	    return new ResponseEntity<byte[]>(new byte[0], HttpStatus.FORBIDDEN);
 	}
     }
@@ -87,8 +92,15 @@ public class ContractsController {
     public ResponseEntity<byte[]> getManagerContract(
 	    @ApiParam(value = "Application id", required = true) @PathVariable Long id) {
 	if (id == null) {
+	    
+	    journalService.newJournalEntry(OperationType.ERROR, id,
+		    ObjectType.CONTRACT, "Nepavyko parsisiųsti sutarties");
+	    
 	    return new ResponseEntity<byte[]>(new byte[0], HttpStatus.BAD_REQUEST);
 	}
+	journalService.newJournalEntry(OperationType.CONTRACT_DOWNLOADED, id,
+		ObjectType.CONTRACT, "Parsisiųsta sutartis");
+	
 	return contractsService.generateContractPDF(id);
     }
 

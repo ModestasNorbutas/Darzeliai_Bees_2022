@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import Table from '../../05ReusableComponents/Table';
 
-class QueueProcessedTable extends Component {
+export default class QueueProcessedTable extends Component {
   columns = [
     {
       key: 'id',
       path: 'id',
-      label: '#',
+      label: 'Id',
       content: application => <span> {application.id}</span>
     },
     {
@@ -18,8 +18,14 @@ class QueueProcessedTable extends Component {
     {
       key: 'name',
       path: 'name',
-      label: 'Vaiko vardas, pavardė',
-      content: application => <span> {application.childName} {application.childSurname}</span>
+      label: 'Vaiko vardas',
+      content: application => <span> {application.childName}</span>
+    },
+    {
+      key: 'surname',
+      path: 'surname',
+      label: 'Vaiko pavardė',
+      content: application => <span>{application.childSurname}</span>
     },
     {
       key: 'status',
@@ -46,7 +52,7 @@ class QueueProcessedTable extends Component {
         <div className="d-flex justify-content-center">
           <button
             id="btnReviewApplicationManager"
-            className="btn btn-primary btn-sm btn-block me-2"
+            className="btn btn-outline-primary btn-sm btn-block me-2"
             onClick={() => this.props.handleApplicationReview(application.id)}
           >Peržiūrėti
           </button>
@@ -54,7 +60,7 @@ class QueueProcessedTable extends Component {
           {application.status === "Patvirtintas" &&
             <button
               id="btnDownloadContractManager"
-              className="btn btn-success btn-sm btn-block"
+              className="btn btn-outline-success btn-sm btn-block"
               onClick={() => this.props.handleContractDownload(application)}
             >Parsisiųsti
             </button>
@@ -62,7 +68,7 @@ class QueueProcessedTable extends Component {
           {(application.status === "Laukiantis" || application.status === "Pateiktas") &&
             <button
               id="btnDeactivateApplication"
-              className="btn btn-danger btn-sm btn-block"
+              className="btn btn-outline-danger btn-sm btn-block"
               onClick={() => this.props.onDeactivate(application)}
               disabled={application.status === 'Neaktualus' || application.status === 'Patvirtintas'}
             >Atmesti
@@ -73,7 +79,6 @@ class QueueProcessedTable extends Component {
   ]
 
   render() {
-
     return (
       <Table
         columns={this.columns}
@@ -82,7 +87,4 @@ class QueueProcessedTable extends Component {
     );
   }
 }
-
-export default QueueProcessedTable
-
 

@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import '../../../App.css';
 import http from '../../00Services/httpService';
 import apiEndpoint from '../../00Services/endpoint';
 import swal from 'sweetalert';
@@ -211,7 +210,7 @@ export default class UserDocumentContainer extends Component {
       <div className="container">
         <div className="row">
           <div className="col">
-            <h6 className="py-3"><b>Mano pažymos</b></h6>
+            <h6 className="py-3">Mano pažymos</h6>
           </div>
         </div>
         <div className="row">
@@ -223,7 +222,7 @@ export default class UserDocumentContainer extends Component {
           </div>
         </div>
         <div className="row formHeader">
-          <div className="col-6">
+          <div className="col-12 col-lg-10">
             {
               //**UserDocumentList */
               <UserDocumentListTable

@@ -44,261 +44,313 @@ import it.akademija.user.gdprservice.JsonExporter;
 @RequestMapping(path = "/api/users")
 public class UserController {
 
-	private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
-	@Autowired
-	private UserService userService;
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private UserDAO userDAO;
 
-	@Autowired
-	private JsonExporter jsonExporter;
+    @Autowired
+    private JsonExporter jsonExporter;
 
-	@Autowired
-	private JournalService journalService;
+    @Autowired
+    private JournalService journalService;
 
-	/**
-	 * 
-	 * Create new user. Method only accessible to ADMIN users
-	 * 
-	 * @param userInfo
-	 */
-	@Secured({ "ROLE_ADMIN" })
-	@PostMapping(path = "/admin/createuser")
-	@ApiOperation(value = "Create user", notes = "Creates user with data")
-	public ResponseEntity<String> createUser(@Valid @RequestBody UserDTO userInfo) {
+    /**
+     * Create new user. Method only accessible to ADMIN users
+     * 
+     * @param userInfo
+     * @return message
+     */
+    @Secured({ "ROLE_ADMIN" })
+    @PostMapping(path = "/admin/createuser")
+    @ApiOperation(value = "Create user", notes = "Creates user with data")
+    public ResponseEntity<String> createUser(
+	    @ApiParam(value = "userInfo", required = true)
+	    @Valid 
+	    @RequestBody UserDTO userInfo) {
 
-		String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+	String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
 
-		LOG.info("** Usercontroller: kuriamas naujas naudotojas **");
+	LOG.info("** Usercontroller: kuriamas naujas naudotojas **");
 
-		if (userService.findByUsername(userInfo.getUsername()) != null) {
+	if (userService.findByUsername(userInfo.getUsername()) != null) {
+	    
+	    journalService.newJournalEntry(OperationType.ERROR, null,
+			ObjectType.USER, "Bandyta sukurti naudotoją su jau egzistuojančiu vardu");
 
-			LOG.warn("Naudotojas [{}] bandė sukurti naują naudotoją su jau egzistuojančiu vardu [{}]", currentUsername,
-					userInfo.getUsername());
+	    LOG.warn("** Naudotojas [{}] bandė sukurti naują naudotoją "
+	    	+ "su jau egzistuojančiu vardu [{}] **", currentUsername, userInfo.getUsername());
 
-			return new ResponseEntity<String>("Toks naudotojas jau egzistuoja!", HttpStatus.BAD_REQUEST);
+	    return new ResponseEntity<String>("Toks naudotojas jau egzistuoja!", 
+		    HttpStatus.BAD_REQUEST);
+	    
+	} else {
+	    userService.createUser(userInfo);
+	    
+	    journalService.newJournalEntry(OperationType.USER_CREATED,
+		    userService.findByUsername(userInfo.getUsername()).getUserId(), ObjectType.USER,
+		    "Sukurtas naujas naudotojas");
 
-		} else {
+	    LOG.info("** Naudotojas [{}] sukūrė naują naudotoją [{}] **", 
+		    currentUsername, userInfo.getUsername());
 
-			userService.createUser(userInfo);
-
-			LOG.info("Naudotojas [{}] sukūrė naują naudotoją [{}]", currentUsername, userInfo.getUsername());
-
-			journalService.newJournalEntry(OperationType.USER_CREATED,
-					userService.findByUsername(userInfo.getUsername()).getUserId(), ObjectType.USER,
-					"Sukurtas naujas naudotojas");
-
-			return new ResponseEntity<String>("Naudotojas sukurtas sėkmingai!", HttpStatus.CREATED);
-		}
+	    return new ResponseEntity<String>("Naudotojas sukurtas sėkmingai!", HttpStatus.CREATED);
 	}
+    }
 
-	/**
-	 * 
-	 * Deletes user with specified username. Method only accessible to ADMIN users
-	 * 
-	 * @param username
-	 */
-	@Secured({ "ROLE_ADMIN" })
-	@DeleteMapping(path = "/admin/delete/{username}")
-	@ApiOperation(value = "Delete user", notes = "Deletes user by username")
-	public ResponseEntity<String> deleteUser(
-			@ApiParam(value = "Username", required = true) @PathVariable final String username) {
+    /**
+     * Deletes user with specified username. Method only accessible to ADMIN users
+     * 
+     * @param username
+     * @return message
+     */
+    @Secured({ "ROLE_ADMIN" })
+    @DeleteMapping(path = "/admin/delete/{username}")
+    @ApiOperation(value = "Delete user", notes = "Deletes user by username")
+    public ResponseEntity<String> deleteUser(
+	    @ApiParam(value = "Username", required = true)
+	    @PathVariable final String username) {
 
-		long id = userService.findByUsername(username).getUserId();
+	long id = userService.findByUsername(username).getUserId();
 
-		if (userService.findByUsername(username) != null) {
+	if (userService.findByUsername(username) != null) {
 
-			userService.deleteUser(username);
+	    userService.deleteUser(username);
+	    
+	    journalService.newJournalEntry(OperationType.USER_DELETED, id,
+		    ObjectType.USER, "Ištrintas naudotojas");
 
-			LOG.info("** Usercontroller: trinamas naudotojas vardu [{}] **", username);
+	    LOG.info("** Usercontroller: trinamas naudotojas vardu [{}] **", username);
 
-			journalService.newJournalEntry(OperationType.USER_DELETED, id, ObjectType.USER, "Ištrintas naudotojas");
-
-			return new ResponseEntity<String>("Naudotojas ištrintas sėkmingai", HttpStatus.OK);
-		}
-
-		LOG.warn("Naudotojas bandė ištrinti naudotoją neegzistuojančiu vardu [{}]", username);
-
-		return new ResponseEntity<String>("Naudotojas tokiu vardu nerastas", HttpStatus.NOT_FOUND);
+	    return new ResponseEntity<String>("Naudotojas ištrintas sėkmingai", HttpStatus.OK);
 	}
+	
+	journalService.newJournalEntry(OperationType.ERROR, null, ObjectType.USER,
+		"Bandyta ištrinti naudotoją su neegzistuojančiu vardu");
 
-	/**
-	 * Returns a list of users. Method only accessible to ADMIN users
-	 * 
-	 * @return list of users
-	 */
-	@Secured({ "ROLE_ADMIN" })
-	@GetMapping(path = "/admin/allusers")
-	@ApiOperation(value = "Show all users", notes = "Showing all users")
-	public Page<UserInfo> getAllUsers(@RequestParam("page") int page, @RequestParam("size") int size) {
+	LOG.warn("** Naudotojas bandė ištrinti naudotoją neegzistuojančiu vardu: [{}] **", username);
 
-		Sort.Order order = new Sort.Order(Sort.Direction.DESC, "userId");
+	return new ResponseEntity<String>("Naudotojas tokiu vardu nerastas", HttpStatus.NOT_FOUND);
+    }
 
-		Pageable pageable = PageRequest.of(page, size, Sort.by(order));
+    /**
+     * Returns a list of users. Method only accessible to ADMIN users
+     * 
+     * @param page - page number
+     * @param size - number of entries in a page
+     * @param filter - part of username
+     * @return list of users
+     */
+    @Secured({ "ROLE_ADMIN" })
+    @GetMapping(path = "/admin/allusers")
+    @ApiOperation(value = "Show all users", notes = "Showing all users")
+    public Page<UserInfo> getAllUsers(
+	    @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+	    @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+	    @RequestParam(value = "filter", required = false, defaultValue = "") String filter) {
 
-		return userService.getAllUsers(pageable);
+	Sort.Order order = new Sort.Order(Sort.Direction.DESC, "userId");
+
+	Pageable pageable = PageRequest.of(page, size, Sort.by(order));
+
+	return userService.getAllUsers(pageable, filter.trim());
+    }
+
+    /**
+     * Get detail for logged in user
+     * 
+     * @return user details
+     */
+    @Secured({ "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
+    @GetMapping(path = "/user")
+    @ApiOperation(value = "Get details for logged in user")
+    public UserInfo getOneUser() {
+
+	String username = SecurityContextHolder.getContext()
+					       .getAuthentication()
+					       .getName();
+
+	if (userService.findByUsername(username) != null) {
+
+	    LOG.info("** Usercontroller: ieškomas naudotojas vardu [{}] **", username);
+
+	    return userService.getUserDetails(username);
 	}
+	return new UserInfo();
+    }
 
-	/**
-	 * Get detail for logged in user
-	 * 
-	 * @return user details
-	 */
-	@Secured({ "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
-	@GetMapping(path = "/user")
-	@ApiOperation(value = "Get details for logged in user")
-	public UserInfo getOneUser() {
+    /**
+     * 
+     * Restores password to initial value for the user with specified username.
+     * Method only accessible to ADMIN users
+     * 
+     * @param username
+     * @return message
+     */
+    @Secured({ "ROLE_ADMIN" })
+    @PutMapping(path = "/admin/password/{username}")
+    @ApiOperation(value = "Restore user password", notes = "Restore user password to initial value")
+    public ResponseEntity<String> restorePassword(
+	    @ApiParam(value = "Username", required = true)
+	    @PathVariable final String username) {
 
-		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+	if (userService.findByUsername(username) != null) {
 
-		if (userService.findByUsername(username) != null) {
+	    userService.restorePassword(username);
+	    
+	    journalService.newJournalEntry(OperationType.USER_DATA_CHANGED,
+		    userService.findByUsername(username).getUserId(),
+		    ObjectType.USER, "Atstatytas naudotojo slaptažodis");
 
-			LOG.info("** Usercontroller: ieškomas naudotojas vardu [{}] **", username);
+	    LOG.info("** Usercontroller: keiciamas slaptazodis naudotojui vardu [{}] **", username);
 
-			return userService.getUserDetails(username);
-
-		}
-		return new UserInfo();
+	    return new ResponseEntity<String>("Slaptažodis atkurtas sėkmingai", HttpStatus.OK);
 	}
+	
+	journalService.newJournalEntry(OperationType.ERROR, null,
+		ObjectType.USER, "Bandyta atstatyti neegzistuojančio naudotojo slaptažodį");
+	
+	LOG.warn("** Bandyta atstatyti slaptažodį "
+		+ "vartotojui su neegzistuojančiu vardu [{}] **", username);
 
-	/**
-	 * 
-	 * Restores password to initial value for the user with specified username.
-	 * Method only accessible to ADMIN users
-	 * 
-	 * @param username
-	 */
-	@Secured({ "ROLE_ADMIN" })
-	@PutMapping(path = "/admin/password/{username}")
-	@ApiOperation(value = "Restore user password", notes = "Restore user password to initial value")
-	public ResponseEntity<String> restorePassword(
-			@ApiParam(value = "Username", required = true) @PathVariable final String username) {
+	return new ResponseEntity<String>("Naudotojas tokiu vardu nerastas", HttpStatus.NOT_FOUND);
+    }
 
-		if (userService.findByUsername(username) != null) {
+    /**
+     * Update user data
+     * 
+     * @param userData
+     * @return message
+     */
+    @Secured({ "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
+    @PutMapping(path = "/update")
+    @ApiOperation(value = "Update logged in user details")
+    public ResponseEntity<String> updateUserData(
+	    @ApiParam(value = "userData", required = true)
+	    @Valid
+	    @RequestBody UserDTO userData) {
 
-			userService.restorePassword(username);
+	String currentUserName = SecurityContextHolder.getContext()
+						      .getAuthentication()
+						      .getName();
 
-			LOG.info("** Usercontroller: keiciamas slaptazodis naudotojui vardu [{}] **", username);
+	userService.updateUserData(userData, currentUserName);
+	
+	journalService.newJournalEntry(OperationType.USER_DATA_CHANGED,
+		userService.findByUsername(currentUserName).getUserId(),
+		ObjectType.USER, "Pakeisti naudotojo duomenys");
 
-			journalService.newJournalEntry(OperationType.USER_DATA_CHANGED,
-					userService.findByUsername(username).getUserId(), ObjectType.USER,
-					"Atstatytas naudotojo slaptažodis");
+	LOG.info("** Usercontroller: keiciami duomenys naudotojui vardu [{}] **", currentUserName);
 
-			return new ResponseEntity<String>("Slaptažodis atkurtas sėkmingai", HttpStatus.OK);
-		}
+	return new ResponseEntity<String>("Duomenys pakeisti sėkmingai", HttpStatus.OK);
+    }
 
-		return new ResponseEntity<String>("Naudotojas tokiu vardu nerastas", HttpStatus.NOT_FOUND);
+    /**
+     * Change user password for logged in user
+     * 
+     * @param oldPassword
+     * @param newPassword
+     * @return message
+     */
+    @Secured({ "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
+    @PutMapping(path = "/updatepassword/{oldPassword}/{newPassword}")
+    @ApiOperation(value = "Update logged in user password")
+    public ResponseEntity<String> updateUserPassword(
+	    @PathVariable(value = "oldPassword") final String oldPassword,
+	    @PathVariable(value = "newPassword") final String newPassword) {
+
+	String currentUsername = SecurityContextHolder.getContext()
+						      .getAuthentication()
+						      .getName();
+
+	if (userService.changePassword(currentUsername, oldPassword, newPassword)) {
+	    
+	    journalService.newJournalEntry(OperationType.USER_DATA_CHANGED,
+		    userService.findByUsername(currentUsername).getUserId(),
+		    ObjectType.USER, "Pakeistas naudotojo slaptažodis");
+
+	    LOG.info("** [{}] slaptažodis pakeistas sėkmingai. **", currentUsername);
+
+	    return new ResponseEntity<String>("Slaptažodis pakeistas sėkmingai", HttpStatus.OK);
+
+	} else {
+	    
+	    journalService.newJournalEntry(OperationType.ERROR,
+		    userService.findByUsername(currentUsername).getUserId(),
+		    ObjectType.USER, "Bandyta atnaujinti slaptažodį, įvedus neteisingą slaptažodį");
+
+	    LOG.warn("** [{}] įvedė neteisingą seną slaptažodį. **", currentUsername);
+
+	    return new ResponseEntity<String>("Neteisingas senas slaptažodis", HttpStatus.BAD_REQUEST);
 	}
+    }
 
-	/**
-	 * 
-	 * Update user data
-	 * 
-	 * @param userData
-	 * @return message
-	 */
-	@Secured({ "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
-	@PutMapping(path = "/update")
-	@ApiOperation(value = "Update logged in user details")
-	public ResponseEntity<String> updateUserData(@Valid @RequestBody UserDTO userData) {
+    /**
+     * Get GDPR user data zip archive
+     * 
+     * @param response
+     * @throws IOException
+     */
+    @Secured({ "ROLE_USER" })
+    @GetMapping(path = "/user/zip")
+    @ApiOperation(value = "Get GDPR user data zip archive")
+    public void zipUserInformation(HttpServletResponse response) throws IOException {
 
-		String currentUserName = SecurityContextHolder.getContext().getAuthentication().getName();
+	String currentUsername = SecurityContextHolder.getContext()
+						      .getAuthentication()
+						      .getName();
 
-		userService.updateUserData(userData, currentUserName);
+	User user = userService.findByUsername(currentUsername);
 
-		LOG.info("** Usercontroller: keiciami duomenys naudotojui vardu [{}] **", currentUserName);
+	String userJsonString = jsonExporter.export(user);
 
-		journalService.newJournalEntry(OperationType.USER_DATA_CHANGED,
-				userService.findByUsername(currentUserName).getUserId(), ObjectType.USER,
-				"Pakeisti naudotojo duomenys");
+	byte[] jsonBytes = userJsonString.getBytes("UTF8");
 
-		return new ResponseEntity<String>("Duomenys pakeisti sėkmingai", HttpStatus.OK);
+	response.setContentType("application/zip");
+	response.setStatus(HttpServletResponse.SC_OK);
+	response.setHeader("Content-Disposition", "attachment; filename=naudotojas.zip");
 
-	}
+	ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream());
 
-	/**
-	 * Change user password for logged in user
-	 * 
-	 * @param oldPassword
-	 * @param newPassword
-	 * @return message
-	 */
-	@Secured({ "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_USER" })
-	@PutMapping(path = "/updatepassword/{oldPassword}/{newPassword}")
-	@ApiOperation(value = "Update logged in user password")
-	public ResponseEntity<String> updateUserPassword(@PathVariable(value = "oldPassword") final String oldPassword,
-			@PathVariable(value = "newPassword") final String newPassword) {
+	InputStream inputStream = new ByteArrayInputStream(jsonBytes);
 
-		String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+	zipOutputStream.putNextEntry(new ZipEntry("naudotojas.json"));
 
-		if (userService.changePassword(currentUsername, oldPassword, newPassword)) {
+	IOUtils.copy(inputStream, zipOutputStream);
+	
+	journalService.newJournalEntry(OperationType.USER_DATA_DOWNLOADED, ObjectType.USER_DATA,
+		"Atsisiųsta informacija apie kaupiamus asmens duomenis");
 
-			LOG.info(" [{}] slaptažodis pakeistas sėkmingai. **", currentUsername);
+	inputStream.close();
 
-			journalService.newJournalEntry(OperationType.USER_DATA_CHANGED,
-					userService.findByUsername(currentUsername).getUserId(), ObjectType.USER,
-					"Pakeistas naudotojo slaptažodis");
+	zipOutputStream.closeEntry();
 
-			return new ResponseEntity<String>("Slaptažodis pakeistas sėkmingai", HttpStatus.OK);
+	zipOutputStream.close();
+    }
 
-		} else {
+    /**
+     * "Forget me" functionality which deletes all user related entries from database
+     */
+    @Secured({ "ROLE_USER" })
+    @DeleteMapping(path = "/user/deletemydata")
+    @ApiOperation(value = "Forget me - delete all user data")
+    public void deleteMyUserData() {
+	
+	String currentUsername = SecurityContextHolder.getContext()
+						      .getAuthentication()
+						      .getName();
+	Long userId = userDAO.findByUsername(currentUsername).getUserId();
 
-			LOG.warn(" [{}] įvedė neteisingą seną slaptažodį. **", currentUsername);
-
-			return new ResponseEntity<String>("Neteisingas senas slaptažodis", HttpStatus.BAD_REQUEST);
-
-		}
-	}
-
-	/**
-	 * Get GDPR user data zip archive
-	 * 
-	 * @param response
-	 * @throws IOException
-	 */
-	@Secured({ "ROLE_USER" })
-	@GetMapping(path = "/user/zip")
-	@ApiOperation(value = "Get GDPR user data zip archive")
-	public void zipUserInformation(HttpServletResponse response) throws IOException {
-
-		String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-
-		User user = userService.findByUsername(currentUsername);
-
-		String userJsonString = jsonExporter.export(user);
-
-		byte[] jsonBytes = userJsonString.getBytes("UTF8");
-
-		response.setContentType("application/zip");
-		response.setStatus(HttpServletResponse.SC_OK);
-		response.setHeader("Content-Disposition", "attachment; filename=naudotojas.zip");
-
-		ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream());
-
-		InputStream inputStream = new ByteArrayInputStream(jsonBytes);
-
-		zipOutputStream.putNextEntry(new ZipEntry("naudotojas.json"));
-
-		IOUtils.copy(inputStream, zipOutputStream);
-
-		inputStream.close();
-
-		zipOutputStream.closeEntry();
-
-		zipOutputStream.close();
-	}
-
-	/**
-	 * "Forget me" functionality which deletes all user related entries from
-	 * database
-	 * 
-	 */
-	@Secured({ "ROLE_USER" })
-	@DeleteMapping(path = "/user/deletemydata")
-	@ApiOperation(value = "Forget me - delete all user data")
-	public void deleteMyUserData() {
-
-		userService.deleteMyUserData();
-	}
+	userService.deleteMyUserData();
+	
+	journalService.newJournalEntry(userId, null, OperationType.USER_DELETED, userId,
+		ObjectType.USER, "Naudotojas ištrintas");
+	
+	LOG.info("** Naudotojas, kurio id: [{}] ištrintas sėkmingai. **", userId);
+    }
 
 	public UserService getUserService() {
 		return userService;

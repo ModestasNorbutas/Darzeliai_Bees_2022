@@ -17,6 +17,11 @@ public class MainAppController {
 	@Autowired
 	private UserDAO userDao;
 
+	/**
+	 * Get username of logged in user
+	 * 
+	 * @return message
+	 */
 	@GetMapping("/api/loggedUserName")
 	@ApiOperation(value = "Get username of logged in user")
 	public String getLoggedInUserName() {
@@ -30,6 +35,11 @@ public class MainAppController {
 		return "not logged";
 	}
 
+	/**
+	 * Get name and surname of logged in user
+	 * 
+	 * @return message
+	 */
 	@GetMapping("/api/loggedUser")
 	@ApiOperation(value = "Get name and surname of logged in user")
 	public String getLoggedInUser() {
@@ -44,6 +54,11 @@ public class MainAppController {
 		return "not logged";
 	}
 
+	/**
+	 * Get role of logged in user
+	 * 
+	 * @return
+	 */
 	@GetMapping("/api/loggedUserRole")
 	@ApiOperation(value = "Get role of logged in user")
 	public String getLoggedInUserRole() {

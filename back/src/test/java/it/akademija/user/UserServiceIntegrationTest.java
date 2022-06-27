@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import it.akademija.journal.JournalEntryDAO;
+import it.akademija.journal.JournalRequestDTO;
 import it.akademija.journal.JournalService;
 import it.akademija.security.DatabaseUserDetailPasswordService;
 import it.akademija.user.gdprservice.JsonEcporterImpl;
@@ -44,7 +45,7 @@ public class UserServiceIntegrationTest {
 	public void testGetAllUsers() {
 
 		PageRequest page = PageRequest.of(1, 10);
-		Page<UserInfo> users = service.getAllUsers(page);
+		Page<UserInfo> users = service.getAllUsers(page, "");
 		assertTrue(users.getSize() != 0);
 
 	}
@@ -109,7 +110,7 @@ public class UserServiceIntegrationTest {
 
 		PageRequest page = PageRequest.of(1, 10);
 
-		assertTrue(journalService.getAllJournalEntries(page).getSize() != 0);
+		assertTrue(journalService.getAllJournalEntries(page, new JournalRequestDTO()).getSize() != 0);
 
 		UserDTO newUser = new UserDTO("USER", "stest", "stest", "12345898987", "Address 1", "+37061398876",
 				"stest@test.lt", "stest@test.lt", "stest@test.lt");

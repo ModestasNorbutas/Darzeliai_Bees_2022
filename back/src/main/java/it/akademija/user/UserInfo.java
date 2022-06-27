@@ -1,5 +1,7 @@
 package it.akademija.user;
 
+import it.akademija.role.Role;
+
 public class UserInfo {
 
 	private Long userId;
@@ -31,6 +33,15 @@ public class UserInfo {
 		this.username = username;
 		this.email = email;
 	}
+	
+	public UserInfo(Long userId, Role role, String name, String surname, String username, String email) {
+		this.userId = userId;
+		this.role = role.name();
+		this.name = name;
+		this.surname = surname;
+		this.username = username;
+		this.email = email;
+	}
 
 	public UserInfo(String role, String name, String surname, String personalCode, String address, String phone,
 			String email, String username) {
@@ -45,8 +56,20 @@ public class UserInfo {
 		this.username = username;
 	}
 	
-	
-	
+	public UserInfo(Long userId, String role, String name, String surname, String personalCode, String address, String phone,
+		String email, String username) {
+	super();
+	this.userId = userId;
+	this.role = role;
+	this.name = name;
+	this.surname = surname;
+	this.address = address;
+	this.personalCode = personalCode;
+	this.phone = phone;
+	this.email = email;
+	this.username = username;
+}
+		
 	public UserInfo(Long userId, String name, String surname, String personalCode, String address, String phone,
 			String email, String username) {
 		super();

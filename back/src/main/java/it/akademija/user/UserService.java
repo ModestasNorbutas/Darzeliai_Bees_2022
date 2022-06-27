@@ -2,7 +2,6 @@ package it.akademija.user;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -86,12 +85,14 @@ public class UserService implements UserDetailsService {
 
 		if (userData.getRole().equals("USER")) {
 			ParentDetails details = new ParentDetails();
+			
 			details.setAddress(userData.getAddress());
 			details.setEmail(userData.getEmail());
 			details.setName(userData.getName());
 			details.setPersonalCode(userData.getPersonalCode());
 			details.setPhone(userData.getPhone());
 			details.setSurname(userData.getSurname());
+			
 			newUser.setParentDetails(details);
 		}
 
@@ -101,6 +102,7 @@ public class UserService implements UserDetailsService {
 		newUser.setRole(Role.valueOf(userData.getRole()));
 		newUser.setUsername(userData.getUsername());
 		newUser.setPassword(passwordEncoder.encode(userData.getUsername()));
+		
 		userDao.saveAndFlush(newUser);
 	}
 
@@ -122,7 +124,9 @@ public class UserService implements UserDetailsService {
 			userDao.save(new User(Role.ADMIN, "admin", "admin", "admin@admin.lt", "admin@admin.lt",
 					passwordEncoder.encode("admin@admin.lt")));
 
-		} else if (user.getRole().equals(Role.USER)) {
+		} 
+		
+		if (user.getRole().equals(Role.USER)) {
 
 			Set<Application> submittedApplications = user.getUserApplications();
 
@@ -174,23 +178,15 @@ public class UserService implements UserDetailsService {
 	}
 
 	/**
-	 * Returns a page of registered Users info with specified page number and page
-	 * size
+	 * Returns a page of registered Users info with specified page number,
+	 * page size and username
 	 * 
 	 * @return list of user details for ADMIN
 	 */
 	@Transactional(readOnly = true)
-	public Page<UserInfo> getAllUsers(Pageable pageable) {
-		Page<User> users = userDao.findAll(pageable);
-		Page<UserInfo> dtoPage = users.map(new Function<User, UserInfo>() {
-			@Override
-			public UserInfo apply(User user) {
-				UserInfo dto = new UserInfo(user.getUserId(), user.getRole().name(), user.getUsername());
-				return dto;
-			}
-
-		});
-		return dtoPage;
+	public Page<UserInfo> getAllUsers(Pageable pageable, String filter) {
+	    
+	    return userDao.getPageOfUsers(pageable, filter);
 	}
 
 	/**
@@ -203,7 +199,7 @@ public class UserService implements UserDetailsService {
 	public UserInfo getUserDetails(String username) {
 		User user = userDao.findByUsername(username);
 		if (user.getRole().equals(Role.USER)) {
-			return new UserInfo(user.getRole().name(), user.getName(), user.getSurname(),
+			return new UserInfo(user.getUserId(), user.getRole().name(), user.getName(), user.getSurname(),
 					user.getParentDetails().getPersonalCode(), user.getParentDetails().getAddress(),
 					user.getParentDetails().getPhone(), user.getEmail(), user.getUsername());
 

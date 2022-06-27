@@ -4,7 +4,6 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -29,11 +28,5 @@ public class ReactErrorController implements ErrorController {
 		}
 		return ResponseEntity.ok(index);
 	}
-
-//	@Override
-//	public String getErrorPath() {
-//
-//		return null;
-//	}
 
 }

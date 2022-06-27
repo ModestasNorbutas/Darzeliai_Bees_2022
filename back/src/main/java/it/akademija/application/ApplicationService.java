@@ -17,9 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import it.akademija.application.priorities.Priorities;
 import it.akademija.application.priorities.PrioritiesDAO;
 import it.akademija.application.priorities.PrioritiesDTO;
-import it.akademija.journal.JournalService;
-import it.akademija.journal.ObjectType;
-import it.akademija.journal.OperationType;
 import it.akademija.kindergarten.Kindergarten;
 import it.akademija.kindergarten.KindergartenService;
 import it.akademija.kindergartenchoise.KindergartenChoise;
@@ -52,10 +49,6 @@ public class ApplicationService {
 	@Autowired
 	private KindergartenChoiseService kindergartenChoiseService;
 
-	@Autowired
-	private JournalService journalService;
-	
-	
 	
 	/**
 	 * 
@@ -82,13 +75,17 @@ public class ApplicationService {
 	 * @return application or null if no kindergarten are chosen
 	 */
 	@Transactional
-	public Application createNewApplication(String currentUsername, ApplicationDTO data) {
+	public Application createNewApplication(
+			String currentUsername, 
+			ApplicationDTO data) {
 
 		Application application = new Application();
 
-		User firstParent = userService.updateUserData(data.getMainGuardian(), currentUsername);
+		User firstParent = userService
+				.updateUserData(data.getMainGuardian(), currentUsername);
 
-		ParentDetailsDTO detailsDto = data.getAdditionalGuardian();
+		ParentDetailsDTO detailsDto = data
+				.getAdditionalGuardian();
 
 		if (detailsDto!=null && detailsDto.getPersonalCode() != null && !detailsDto.getPersonalCode().isEmpty()) {
 			ParentDetails secondParent = parentDetailsDao.findByPersonalCode(detailsDto.getPersonalCode());
@@ -133,9 +130,8 @@ public class ApplicationService {
 				if (kindergarten != null) {
 					
 					KindergartenChoise kindergartenChoise = 
-							new KindergartenChoise(kindergarten, application, i);
-					
-					kindergartenChoiseService.saveKindergartenChoise(kindergartenChoise);
+							kindergartenChoiseService.saveKindergartenChoise(
+							new KindergartenChoise(kindergarten, application, i));
 					
 					kindergartenChoises.add(kindergartenChoise);
 				}
@@ -197,9 +193,6 @@ public class ApplicationService {
 			updateAvailablePlacesInKindergarten(application);
 
 			applicationDao.delete(application);
-
-			journalService.newJournalEntry(OperationType.APPLICATION_DELETED, id, ObjectType.APPLICATION,
-					"Ištrintas prašymas");
 
 			return new ResponseEntity<String>("Ištrinta sėkmingai", HttpStatus.OK);
 		}
@@ -327,23 +320,10 @@ public class ApplicationService {
 	 * @param pageable
 	 * @return page from Application database
 	 */
-	public Page<ApplicationInfo> getPageFromSubmittedApplications(Pageable pageable) {
+	public Page<ApplicationInfo> getPageFromSubmittedApplications(Pageable pageable, String filter) {
 
-		return applicationDao.findAllApplications(pageable);
+		return applicationDao.findAllApplications(pageable, filter);
 
-	}
-
-	/**
-	 * Returns a filtered page of information from submitted Applications list,
-	 * containing applications that start with specified child personal code.
-	 * 
-	 * @param childPersonalCode
-	 * @param pageable
-	 * @return filtered page from Application database
-	 */
-	public Page<ApplicationInfo> getApplicationnPageFilteredById(String childPersonalCode, Pageable pageable) {
-
-		return applicationDao.findByIdContaining(childPersonalCode, pageable);
 	}
 
 	/**

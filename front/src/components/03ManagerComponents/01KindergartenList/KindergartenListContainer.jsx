@@ -1,21 +1,23 @@
 import React, { Component } from 'react';
 import swal from 'sweetalert';
-
 import http from '../../00Services/httpService';
 import apiEndpoint from '../../00Services/endpoint';
-import '../../../App.css';
-
 import KindergartenListTable from './KindergartenListTable';
-import Pagination from '../../05ReusableComponents/Pagination';
+import KindergartenListCards from './KindergartenListCards';
+import Pagination from "react-js-pagination";
 import SearchBox from '../../05ReusableComponents/SeachBox';
-export class KindergartenListContainer extends Component {
+import { OpenStreetMapProvider } from 'leaflet-geosearch';
 
+const provider = new OpenStreetMapProvider();
+const breakpoint = 768;
+
+export default class KindergartenListContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
       darzeliai: [],
       elderates: [],
-      pageSize: 10,
+      pageSize: 10, // FUNCTIONALITY NOT YET IMPLEMENTED
       currentPage: 1,
       totalPages: 0,
       totalElements: 0,
@@ -24,17 +26,30 @@ export class KindergartenListContainer extends Component {
       inEditMode: false,
       editRowId: "",
       editedKindergarten: null,
-      errorMessages: {}
+      errorMessages: {},
+      isDisabled: false,
+      width: ""
     }
+    this.getKindergartenInfo = this.getKindergartenInfo.bind(this);
   }
+
   componentDidMount() {
-    this.getKindergartenInfo(this.state.currentPage, "");
+    this.getKindergartenInfo(this.state.currentPage, this.state.pageSize, this.state.searchQuery);
     this.getElderates();
     document.addEventListener("keydown", this.handleEscape, false);
+    window.addEventListener("resize", this.update);
+    this.update();
   }
 
   componentWillUnmount() {
     document.removeEventListener("keydown", this.handleEscape, false);
+    window.removeEventListener("resize", this.update);
+  }
+
+  update = () => {
+    this.setState({
+      width: window.innerWidth
+    })
   }
 
   handleEscape = (e) => {
@@ -47,26 +62,9 @@ export class KindergartenListContainer extends Component {
     }
   }
 
-
-  getKindergartenInfo(currentPage, name) {
-
-    const { pageSize } = this.state;
-
-    let page = currentPage - 1;
-
-    if (page < 0) page = 0;
-
-    var uri = `${apiEndpoint}/api/darzeliai/manager/page?page=${page}&size=${pageSize}`;
-
-    if (name !== "") {
-      uri = `${apiEndpoint}/api/darzeliai/manager/page/${name}?page=${page}&size=${pageSize}`;
-
-    }
-
-    http
-      .get(uri)
+  getKindergartenInfo(page, size, filter) {
+    http.get(`${apiEndpoint}/api/darzeliai/manager/page?page=${page - 1}&size=${size}&filter=${filter}`)
       .then((response) => {
-
         this.setState({
           darzeliai: response.data.content,
           totalPages: response.data.totalPages,
@@ -74,56 +72,47 @@ export class KindergartenListContainer extends Component {
           numberOfElements: response.data.numberOfElements,
           currentPage: response.data.number + 1
         });
-
       }).catch(() => { });
   }
 
   getElderates() {
-    http
-      .get(`${apiEndpoint}/api/darzeliai/manager/elderates`)
+    http.get(`${apiEndpoint}/api/darzeliai/manager/elderates`)
       .then((response) => {
         this.setState({ elderates: response.data });
-      })
-      .catch(() => { });
+      }).catch(() => { });
   }
 
   handleSearch = (e) => {
-
-    const name = e.currentTarget.value;
-    this.setState({ searchQuery: name });
-    this.getKindergartenInfo(1, name);
+    this.setState({ searchQuery: e.currentTarget.value });
+    setTimeout(() => {
+      this.getKindergartenInfo(1, this.state.pageSize, this.state.searchQuery);
+    }, 100);
   }
 
   handleDelete = (item) => {
-
     swal({
       text: "Ar tikrai norite ištrinti darželį?",
       buttons: ["Ne", "Taip"],
       dangerMode: true,
     }).then((actionConfirmed) => {
       if (actionConfirmed) {
-        const id = item.id;
         const { currentPage, numberOfElements } = this.state;
-        const page = numberOfElements === 1 ? (currentPage - 1) : currentPage;
-        //console.log("Trinti darzeli", id);
-
-        http
-          .delete(`${apiEndpoint}/api/darzeliai/manager/delete/${id}`)
+        let page = numberOfElements === 1 ? (currentPage - 1) : currentPage;
+        page = page < 1 ? 1 : page;
+        http.delete(`${apiEndpoint}/api/darzeliai/manager/delete/${item.id}`)
           .then((response) => {
             swal({
               text: response.data,
               button: "Gerai"
             });
-            this.setState({ searchQuery: "" });
-            this.getKindergartenInfo(page, "");
-
+          }).then(() => {
+            this.getKindergartenInfo(page, this.state.pageSize, this.state.searchQuery);
           }).catch(() => { });
       }
     });
   }
 
   handleEditKindergarten = (item) => {
-
     this.setState({
       inEditMode: true,
       editRowId: item.id,
@@ -138,11 +127,12 @@ export class KindergartenListContainer extends Component {
         editRowId: "",
         editedKindergarten: null
       }
-    )
+    );
+    this.setState({ errorMessages: {} });
+    this.getKindergartenInfo(this.state.currentPage, this.state.pageSize, this.state.searchQuery);
   }
 
   handleChange = ({ target: input }) => {
-
     const errorMessages = this.state.errorMessages;
 
     if (input.validity.valueMissing || input.validity.patternMismatch || input.validity.rangeUnderflow || input.validity.rangeOverflow) {
@@ -158,14 +148,42 @@ export class KindergartenListContainer extends Component {
     });
   }
 
+  handleUpdateCoordinates = () => {
+    const kindergarten = this.state.editedKindergarten;
+    this.setState({ isDisabled: true });
+    setTimeout(() => {
+      this.setState({ isDisabled: false });
+    }, 1500);
+    if (kindergarten.address === "") {
+      kindergarten.latitude = "";
+      kindergarten.longitude = "";
+    } else {
+      provider.search({ query: kindergarten.address + ", Vilnius, Lithuania" })
+        .then(response => {
+          if (typeof response[0] !== "undefined") {
+            kindergarten.latitude = response[0].raw.lat;
+            kindergarten.longitude = response[0].raw.lon;
+          } else {
+            kindergarten.latitude = "";
+            kindergarten.longitude = "";
+          }
+        }).catch(error => {
+          alert(error);
+        })
+    }
+    this.setState({
+      editedKindergarten: kindergarten
+    })
+  }
+
   handleSaveEdited = () => {
     const { editedKindergarten, editRowId, errorMessages } = this.state;
-
     if (Object.keys(errorMessages).length === 0) {
       http.put(`${apiEndpoint}/api/darzeliai/manager/update/${editRowId}`, editedKindergarten)
         .then(() => {
           this.onCancel();
-          this.getKindergartenInfo(this.state.currentPage, this.state.searchQuery);
+        }).then(() => {
+          this.getKindergartenInfo(this.state.currentPage, this.state.pageSize, this.state.searchQuery);
         }).catch(error => {
           if (error && error.response.status === 409) {
             swal({
@@ -173,26 +191,19 @@ export class KindergartenListContainer extends Component {
               button: "Gerai"
             });
           }
-
         })
     }
   }
 
-
   handlePageChange = (page) => {
     this.setState({ currentPage: page });
-    this.getKindergartenInfo(page, this.state.searchQuery);
+    this.getKindergartenInfo(page, this.state.pageSize, this.state.searchQuery);
   };
 
-
-
   render() {
-
-    const placeholder = "Ieškoti pagal pavadinimą...";
-
-    const { darzeliai, elderates, totalElements, pageSize, searchQuery, inEditMode, editRowId, errorMessages } = this.state;
-
+    const { darzeliai, elderates, searchQuery, inEditMode, editRowId, errorMessages } = this.state;
     const hasErrors = Object.keys(errorMessages).length === 0 ? false : true;
+    let pageRange = this.state.width >= breakpoint ? 15 : 8;
 
     return (
       <React.Fragment>
@@ -200,34 +211,60 @@ export class KindergartenListContainer extends Component {
         <SearchBox
           value={searchQuery}
           onSearch={this.handleSearch}
-          placeholder={placeholder}
+          placeholder={"Ieškoti pagal pavadinimą..."}
         />
 
-        <KindergartenListTable
-          darzeliai={darzeliai}
-          elderates={elderates}
-          inEditMode={inEditMode}
-          editRowId={editRowId}
-          errorMessages={errorMessages}
-          hasErrors={hasErrors}
-          onDelete={this.handleDelete}
-          onEditData={this.handleEditKindergarten}
-          onEscape={this.handleEscape}
-          onChange={this.handleChange}
-          onSave={this.handleSaveEdited}
-        />
+        {this.state.width >= breakpoint ?
+          <KindergartenListTable
+            darzeliai={darzeliai}
+            elderates={elderates}
+            inEditMode={inEditMode}
+            editRowId={editRowId}
+            errorMessages={errorMessages}
+            hasErrors={hasErrors}
+            onDelete={this.handleDelete}
+            onEditData={this.handleEditKindergarten}
+            onEscape={this.handleEscape}
+            onChange={this.handleChange}
+            onSave={this.handleSaveEdited}
+            handleUpdateCoordinates={this.handleUpdateCoordinates}
+            isDisabled={this.state.isDisabled}
+            onCancel={this.onCancel}
+          />
+          :
+          <KindergartenListCards
+            darzeliai={darzeliai}
+            elderates={elderates}
+            inEditMode={inEditMode}
+            editRowId={editRowId}
+            errorMessages={errorMessages}
+            hasErrors={hasErrors}
+            onDelete={this.handleDelete}
+            onEditData={this.handleEditKindergarten}
+            onEscape={this.handleEscape}
+            onChange={this.handleChange}
+            onSave={this.handleSaveEdited}
+            handleUpdateCoordinates={this.handleUpdateCoordinates}
+            isDisabled={this.state.isDisabled}
+            onCancel={this.onCancel}
+          />
+        }
 
-        <Pagination
-          itemsCount={totalElements}
-          pageSize={pageSize}
-          onPageChange={this.handlePageChange}
-          currentPage={this.state.currentPage}
-        />
-
+        {this.state.totalPages > 1 &&
+          <div className="d-flex justify-content-center">
+            <Pagination
+              itemClass="page-item"
+              linkClass="page-link"
+              activePage={this.state.currentPage}
+              itemsCountPerPage={this.state.pageSize}
+              totalItemsCount={this.state.totalElements}
+              pageRangeDisplayed={pageRange}
+              onChange={this.handlePageChange}
+            />
+          </div>
+        }
 
       </React.Fragment>
     )
   }
 }
-
-export default KindergartenListContainer;

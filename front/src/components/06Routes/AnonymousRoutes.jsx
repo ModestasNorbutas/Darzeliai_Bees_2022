@@ -1,6 +1,5 @@
 import React from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
-
 import LoginContainer from "../01CommonComponents/01Login/LoginContainer";
 
 export default function AnonymousRoutes() {

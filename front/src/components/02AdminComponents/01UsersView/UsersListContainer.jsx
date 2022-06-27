@@ -1,37 +1,49 @@
 import React, { Component } from "react";
 import swal from "sweetalert";
 import Pagination from "react-js-pagination";
-
 import http from "../../00Services/httpService";
 import apiEndpoint from "../../00Services/endpoint";
-import "../../../App.css";
-
+import SearchBox from "../../05ReusableComponents/SeachBox";
 import UserListTable from "./UsersListTable";
+import UserListCards from "./UserListCards";
+
+const breakpoint = 768;
 
 export default class UsersListContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
       naudotojai: [],
-      pageSize: 10,
+      pageSize: 10, // FUNCTIONALITY NOT YET IMPLEMENTED
       currentPage: 1,
       totalPages: 0,
       totalElements: 0,
       numberOfElements: 0,
       passwordResetRequests: [],
+      searchQuery: "",
+      width: ""
     };
+    this.handleSearch = this.handleSearch.bind(this);
   }
+
   componentDidMount() {
-    this.getUserInfo(this.state.currentPage);
+    this.getUserInfo(this.state.currentPage, this.state.pageSize, this.state.searchQuery);
+    window.addEventListener("resize", this.update);
+    this.update();
   }
 
-  getUserInfo(currentPage) {
-    const { pageSize } = this.state;
-    let page = currentPage - 1;
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.update);
+  }
 
-    if (page < 0) page = 0;
+  update = () => {
+    this.setState({
+      width: window.innerWidth
+    })
+  }
 
-    var uri = `${apiEndpoint}/api/users/admin/allusers?page=${page}&size=${pageSize}`;
+  getUserInfo(page, size, filter) {
+    var uri = `${apiEndpoint}/api/users/admin/allusers?page=${page - 1}&size=${size}&filter=${filter}`;
 
     http
       .get(`${apiEndpoint}/passwordresetrequests/getAllRequests`)
@@ -60,6 +72,13 @@ export default class UsersListContainer extends Component {
       .catch(() => { });
   }
 
+  handleSearch(e) {
+    this.setState({ searchQuery: e.currentTarget.value });
+    setTimeout(() => {
+      this.getUserInfo(1, this.state.pageSize, this.state.searchQuery);
+    }, 100);
+  }
+
   checkIfUserIsRequestingPassword(UID, passList) {
     return passList.some((element) => element.userId === UID);
   }
@@ -67,8 +86,10 @@ export default class UsersListContainer extends Component {
   mapToViewModel(data, passList) {
     const naudotojai = data.map((user) => ({
       id: user.userId,
-      username: user.username,
       role: user.role,
+      name: user.name,
+      surname: user.surname,
+      username: user.username,
       isRequestingPasswordReset: this.checkIfUserIsRequestingPassword(
         user.userId,
         passList
@@ -79,8 +100,6 @@ export default class UsersListContainer extends Component {
   }
 
   handleDelete = (item) => {
-    const username = item.username;
-
     swal({
       text: "Ar tikrai norite ištrinti naudotoją?",
       buttons: ["Ne", "Taip"],
@@ -88,87 +107,85 @@ export default class UsersListContainer extends Component {
     }).then((actionConfirmed) => {
       if (actionConfirmed) {
         const { currentPage, numberOfElements } = this.state;
-        const page = numberOfElements === 1 ? currentPage - 1 : currentPage;
-
+        let page = numberOfElements === 1 ? currentPage - 1 : currentPage;
+        page = page === 0 ? 1 : page;
         http
-          .delete(`${apiEndpoint}/api/users/admin/delete/${username}`)
+          .delete(`${apiEndpoint}/api/users/admin/delete/${item.username}`)
           .then((response) => {
             swal({
               text: response.data,
               button: "Gerai",
-            });
-
-            this.getUserInfo(page);
-          })
-          .catch(() => { });
+            })
+          }).then(() => {
+            this.getUserInfo(page, this.state.pageSize, this.state.searchQuery);
+          }).catch(() => { });
       }
     });
   };
 
   handleRestorePassword = (item) => {
     const username = item.username;
-
     swal({
       text: "Ar tikrai norite atkurti pirminį slaptažodį?",
       buttons: ["Ne", "Taip"],
       dangerMode: true,
     }).then((actionConfirmed) => {
       if (actionConfirmed) {
-        http
-          .put(`${apiEndpoint}/api/users/admin/password/${username}`)
+        http.put(`${apiEndpoint}/api/users/admin/password/${username}`)
           .then((response) => {
-            const { currentPage, numberOfElements } = this.state;
-            const page = numberOfElements === 1 ? currentPage - 1 : currentPage;
-            this.getUserInfo(page);
             swal({
               text: response.data,
               button: "Gerai",
             });
-          })
-          .catch(() => { });
+          }).then(() => {
+            this.getUserInfo(this.state.currentPage, this.state.pageSize, this.state.searchQuery);
+          }).catch(() => { });
       }
     });
   };
 
   handlePageChange = (page) => {
     this.setState({ currentPage: page });
-    this.getUserInfo(page);
+    this.getUserInfo(page, this.state.pageSize, this.state.searchQuery);
   };
 
   render() {
-    const { naudotojai } = this.state;
-    let count = 0;
-
-    if (naudotojai !== undefined) count = naudotojai.length;
-
-    if (count === 0)
-      return (
-        <div className="container pt-5">
-          <h6 className="pt-5">Naudotojų sąrašas tuščias.</h6>
-        </div>
-      );
-
-    const { totalPages } = this.state;
+    let pageRange = this.state.width >= breakpoint ? 15 : 8;
 
     return (
       <React.Fragment>
-        <UserListTable
-          naudotojai={naudotojai}
-          onDelete={this.handleDelete}
-          onRestorePassword={this.handleRestorePassword}
+        <SearchBox
+          value={this.state.searchQuery}
+          onSearch={this.handleSearch}
+          placeholder={"Ieškoti pagal naudotojo vardą..."}
         />
 
-        {totalPages > 1 && <div className="d-flex justify-content-center">
-          <Pagination
-            itemClass="page-item"
-            linkClass="page-link"
-            activePage={this.state.currentPage}
-            itemsCountPerPage={this.state.pageSize}
-            totalItemsCount={this.state.totalElements}
-            pageRangeDisplayed={15}
-            onChange={this.handlePageChange.bind(this)}
+        {this.state.width >= breakpoint ?
+          <UserListTable
+            naudotojai={this.state.naudotojai}
+            onDelete={this.handleDelete}
+            onRestorePassword={this.handleRestorePassword}
           />
-        </div>
+          :
+          <UserListCards
+            naudotojai={this.state.naudotojai}
+            onDelete={this.handleDelete}
+            onRestorePassword={this.handleRestorePassword}
+          />
+        }
+
+        {this.state.totalPages > 1 &&
+          <div className="d-flex justify-content-center">
+            <Pagination
+              itemClass="page-item"
+              linkClass="page-link"
+              activePage={this.state.currentPage}
+              itemsCountPerPage={this.state.pageSize}
+              totalItemsCount={this.state.totalElements}
+              pageRangeDisplayed={pageRange}
+              onChange={this.handlePageChange.bind(this)}
+            />
+          </div>
         }
       </React.Fragment>
     );

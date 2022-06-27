@@ -71,7 +71,6 @@ public class SubmitNewApplicationPage extends AbstractObjectPage {
     public WebElement addAdditionalGuardianButton;
 
     @FindBy(id = "submitApplicationButton")
-//    @FindBy (xpath= "//button[@type='submit']")
     public WebElement buttonSubmitApplication;
 
     // dropdown
@@ -156,7 +155,6 @@ public class SubmitNewApplicationPage extends AbstractObjectPage {
     }
 
     public void clickPriorityOne() {
-//		priorityOne.click();
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("window.scrollBy(0,400)");
         js.executeScript("arguments[0].scrollIntoView()", priorityOne);
@@ -164,7 +162,6 @@ public class SubmitNewApplicationPage extends AbstractObjectPage {
     }
 
     public void clickPriorityTwo() {
-//		priorityTwo.click();
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("window.scrollBy(0,400)");
         js.executeScript("arguments[0].scrollIntoView()", priorityTwo);
@@ -172,7 +169,6 @@ public class SubmitNewApplicationPage extends AbstractObjectPage {
     }
 
     public void clickPriorityThree() {
-//		priorityThree.click();
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("window.scrollBy(0,400)");
         js.executeScript("arguments[0].scrollIntoView()", priorityThree);
@@ -181,7 +177,6 @@ public class SubmitNewApplicationPage extends AbstractObjectPage {
     }
 
     public void clickPriorityFour() {
-//		priorityFour.click();
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("window.scrollBy(0,400)");
         js.executeScript("arguments[0].scrollIntoView()", priorityFour);
@@ -190,7 +185,6 @@ public class SubmitNewApplicationPage extends AbstractObjectPage {
     }
 
     public void clickPriorityFive() {
-//		priorityFive.click();
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("window.scrollBy(0,400)");
         js.executeScript("arguments[0].scrollIntoView()", priorityFive);
@@ -199,29 +193,12 @@ public class SubmitNewApplicationPage extends AbstractObjectPage {
     }
 
     public void clickPrioritySix() {
-//		prioritySix.click();
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("window.scrollBy(0,400)");
         js.executeScript("arguments[0].scrollIntoView()", prioritySix);
         js.executeScript("arguments[0].click();", prioritySix);
     }
 
-//  veikia ant FireFox
-//	public void openKindergartenListDropdownPriorityOne() {
-//	JavascriptExecutor js = (JavascriptExecutor)driver;
-//		js.executeScript("window.scrollBy(0,600)");
-//		kindergartenPriorityOne.click();
-//		js.executeScript("arguments[0].click();", kindergartenPriorityOne);
-//		js.executeScript("document.getElementById('react-select-2-option-0').click()");
-//	}
-
-//       veikia ant chrome
-//    public void openKindergartenListDropdownPriorityOne() {
-//        kindergartenPriorityOne.click();
-//        JavascriptExecutor js = (JavascriptExecutor) driver;
-//        js.executeScript("arguments[0].click();", kindergartenPriorityOne);
-//        js.executeScript("document.getElementById('react-select-2-option-0').click()");
-//    }
 
     public void openKindergartenListDropdownPriorityOne() throws InterruptedException {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
@@ -233,17 +210,6 @@ public class SubmitNewApplicationPage extends AbstractObjectPage {
         drpDnPrioOne.click();
     }
 
-//    public void openKindergartenListDropdownPriorityOne() throws InterruptedException {
-//
-//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-//        for (int i = 0; i < 2; i++) {
-//            driver.findElement(By.tagName("body")).sendKeys(Keys.END);
-//            Thread.sleep(160);}
-//            kindergartenPriorityOne.click();
-//            WebElement drpDnPrioOne = wait.until(
-//                    ExpectedConditions.visibilityOfElementLocated(By.id("react-select-2-option-0")));
-//            drpDnPrioOne.click();
-//        }
 
     public void clickButtonSubmitApplication() {
         JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -251,15 +217,6 @@ public class SubmitNewApplicationPage extends AbstractObjectPage {
         js.executeScript("arguments[0].scrollIntoView()", buttonSubmitApplication);
         js.executeScript("arguments[0].click();", buttonSubmitApplication);
     }
-
-//public void clickButtonSubmitApplication() throws InterruptedException {
-//    driver.findElement(By.tagName("body")).sendKeys(Keys.END);
-//    Thread.sleep(160);
-//    buttonSubmitApplication.click();
-//    WebElement submitAppButton = wait.until(
-//            ExpectedConditions.visibilityOfElementLocated((By) buttonSubmitApplication));
-//    submitAppButton.click();
-//}
 
     // constructor
     public SubmitNewApplicationPage(WebDriver driver) {

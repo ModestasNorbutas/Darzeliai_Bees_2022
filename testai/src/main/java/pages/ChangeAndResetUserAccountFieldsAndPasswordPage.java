@@ -9,6 +9,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class ChangeAndResetUserAccountFieldsAndPasswordPage extends AbstractObjectPage{
+
 	// input fields
 	@FindBy (id="txtName")
 	public WebElement userName;
@@ -34,7 +35,6 @@ public class ChangeAndResetUserAccountFieldsAndPasswordPage extends AbstractObje
 	public WebElement agreeToResetUserPasswordButton;
 
 	@FindBy (xpath = "//div[4]/div/button")
-//	@FindBy (id = "btnRestoreUserPassword")
 	public WebElement okResetPasswordButton;
 
 	@FindBy (xpath = "//div[2]/div/button")
@@ -47,11 +47,9 @@ public class ChangeAndResetUserAccountFieldsAndPasswordPage extends AbstractObje
 	public WebElement okButtonUserDetailsUpdated;
 	
 	@FindBy (xpath = "//button[@class='btn btn-primary'][text()='Keisti']")
-//	@FindBy (xpath = "//*//div[3]//button")
 	public WebElement changeUserPasswordButton;
 	
 	@FindBy (xpath = "//*/div[5]/button")
-	//button[@class='btn btn-primary'][text()='Išsaugoti']
 	public WebElement buttonSaveChangedPassword;
 		
 	@FindBy (xpath = "//div[2]/div/button")

@@ -35,7 +35,13 @@ public class DocumentEntity {
 	@Column
 	private LocalDate uploadDate;
 	
-	public DocumentEntity(Long id, String name, String type, byte[] data, long size, long uploaderId, LocalDate uploadDate) {
+	public DocumentEntity(Long id, 
+			String name, 
+			String type, 
+			byte[] data, 
+			long size, 
+			long uploaderId, 
+			LocalDate uploadDate) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -46,7 +52,12 @@ public class DocumentEntity {
 		this.uploadDate = uploadDate;
 	}
 	
-	public DocumentEntity(String name, String type, byte[] data, long size, long uploaderId, LocalDate uploadDate) {
+	public DocumentEntity(String name, 
+			String type, 
+			byte[] data, 
+			long size, 
+			long uploaderId, 
+			LocalDate uploadDate) {
 		super();
 		this.name = name;
 		this.type = type;

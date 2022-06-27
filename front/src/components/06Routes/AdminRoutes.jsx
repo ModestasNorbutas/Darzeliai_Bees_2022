@@ -1,12 +1,10 @@
 import React from "react";
 import { Switch, Route } from "react-router-dom";
 import CommonErrorHandler from "../00Services/CommonErrorHandler";
-
 import AdminNavBar from "../02AdminComponents/00NavBar/AdminNavBar";
 import UsersViewContainer from "../02AdminComponents/01UsersView/UsersViewContainer";
 import UsersListContainer from "../02AdminComponents/01UsersView/UsersListContainer";
 import KindergartenStatContainer from "../01CommonComponents/04KindergartenStatistics/KindergartenStatContainer";
-import ApplicationStatusContainer from "../02AdminComponents/02ApplicationStatus/ApplicationStatusContainer";
 import EventJournalContainer from "../02AdminComponents/03EventJournal/EventJournalContainer";
 import UpdateProfileFormContainer from "../01CommonComponents/03UpdateProfile/UpdateProfileFormContainer";
 import NotFound from "../01CommonComponents/02NotFound/NotFound";
@@ -24,11 +22,6 @@ export default function AdminRoutes() {
               exact
               path="/statistika"
               component={KindergartenStatContainer}
-            />
-            <Route
-              exact
-              path="/prasymai/statusas"
-              component={ApplicationStatusContainer}
             />
             <Route
               exact

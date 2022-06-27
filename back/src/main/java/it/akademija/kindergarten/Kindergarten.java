@@ -19,210 +19,223 @@ import it.akademija.kindergartenchoise.KindergartenChoise;
 
 @Entity
 public class Kindergarten {
-	
-	@Id
-	@Column(name = "kindergarten_id")
-	@Pattern(regexp = "^(?!\\s*$)[0-9\\s]{9}$|", message = "Įstaigos kodas turi būti sudarytas iš 9 skaitmenų")
-	private String id;
 
-	@NotBlank(message = "Pavadinimas privalomas")
-	@Pattern(regexp = "\\S[\\s\\S]{2,49}")
-	@Column(name = "name", unique = true)
-	private String name;
+    @Id
+    @Column(name = "kindergarten_id")
+    @Pattern(regexp = "^(?!\\s*$)[0-9\\s]{9}$|", message = "Įstaigos kodas turi būti sudarytas iš 9 skaitmenų")
+    private String id;
 
-	@Column
-	@NotBlank(message = "Adresas privalomas")
-	private String address;
+    @NotBlank(message = "Pavadinimas privalomas")
+    @Pattern(regexp = "\\S[\\s\\S]{2,49}")
+    @Column(name = "name", unique = true)
+    private String name;
 
-	@Column
-	@Pattern(regexp = "^[\\p{L}\\s]{3,20}$")
-	@NotBlank(message = "Seniūnija privaloma")
-	private String elderate;
-	
-	@Column
-	@Pattern(regexp = "^[A-zÀ-ž\\s-]{2,32}")
-	private String managerName;
-	
-	@Column
-	@Pattern(regexp = "^[A-zÀ-ž\\s-]{2,32}")
-	private String managerSurname;	
+    @Column
+    @NotBlank(message = "Adresas privalomas")
+    private String address;
 
-	@Min(value = 0, message = "Laisvų vietų skaičius negali būti mažesnis už 0")
-	@Max(value=999, message = "Laisvų vietų skaičius negali būti didesnis už 999")
-	private int capacityAgeGroup2to3;
-	
-	private int placesTakenAgeGroup2to3;
+    @Column
+    @Pattern(regexp = "^[\\p{L}\\s]{3,20}$")
+    @NotBlank(message = "Seniūnija privaloma")
+    private String elderate;
 
-	@Min(value = 0, message = "Laisvų vietų skaičius negali būti mažesnis už 0")
-	@Max(value=999, message = "Laisvų vietų skaičius negali būti didesnis už 999")
-	private int capacityAgeGroup3to6;
-	
-	private int placesTakenAgeGroup3to6;
+    @Column
+    @Pattern(regexp = "^[A-zÀ-ž\\s-]{2,32}")
+    private String managerName;
 
-	@OneToMany(mappedBy = "kindergarten", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private Set<KindergartenChoise> kindergartenChoises;
-	
-	@OneToMany(mappedBy = "approvedKindergarten", cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE}, fetch = FetchType.LAZY)
-	private Set<Application> approvedApplications;
+    @Column
+    @Pattern(regexp = "^[A-zÀ-ž\\s-]{2,32}")
+    private String managerSurname;
 
-	public Kindergarten() {
+    @Min(value = 0, message = "Laisvų vietų skaičius negali būti mažesnis už 0")
+    @Max(value = 999, message = "Laisvų vietų skaičius negali būti didesnis už 999")
+    private int capacityAgeGroup2to3;
 
-	}
+    private int placesTakenAgeGroup2to3;
 
-	public Kindergarten(String id, String name, String address, String elderate, int capacityAgeGroup2to3,
-			int capacityAgeGroup3to6) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.address = address;
-		this.elderate = elderate;
-		this.capacityAgeGroup2to3 = capacityAgeGroup2to3;
-		this.capacityAgeGroup3to6 = capacityAgeGroup3to6;
-	}	
-	
-	public Kindergarten(
-		@Pattern(regexp = "^(?!\\s*$)[0-9\\s]{9}$|", message = "Įstaigos kodas turi būti sudarytas iš 9 skaitmenų") String id,
-		@NotBlank(message = "Pavadinimas privalomas") @Pattern(regexp = "\\S[\\s\\S]{2,49}") String name,
-		@NotBlank(message = "Adresas privalomas") String address,
-		@Pattern(regexp = "^[\\p{L}\\s]{3,20}$") @NotBlank(message = "Seniūnija privaloma") String elderate,
-		@Pattern(regexp = "^[A-zÀ-ž\\s-]{2,32}") String managerName,
-		@Pattern(regexp = "^[A-zÀ-ž\\s-]{2,32}") String managerSurname,
-		@Min(value = 0, message = "Laisvų vietų skaičius negali būti mažesnis už 0") @Max(value = 999, message = "Laisvų vietų skaičius negali būti didesnis už 999") int capacityAgeGroup2to3,
-		@Min(value = 0, message = "Laisvų vietų skaičius negali būti mažesnis už 0") @Max(value = 999, message = "Laisvų vietų skaičius negali būti didesnis už 999") int capacityAgeGroup3to6) {
-	    super();
-	    this.id = id;
-	    this.name = name;
-	    this.address = address;
-	    this.elderate = elderate;
-	    this.managerName = managerName;
-	    this.managerSurname = managerSurname;
-	    this.capacityAgeGroup2to3 = capacityAgeGroup2to3;
-	    this.capacityAgeGroup3to6 = capacityAgeGroup3to6;
-	}
+    @Min(value = 0, message = "Laisvų vietų skaičius negali būti mažesnis už 0")
+    @Max(value = 999, message = "Laisvų vietų skaičius negali būti didesnis už 999")
+    private int capacityAgeGroup3to6;
 
-	public String getId() {
-		return id;
-	}
+    private int placesTakenAgeGroup3to6;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    private Double latitude;
 
-	public String getName() {
-		return name;
-	}
+    private Double longitude;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    @OneToMany(mappedBy = "kindergarten", cascade = { CascadeType.PERSIST, CascadeType.DETACH,
+	    CascadeType.MERGE }, fetch = FetchType.LAZY)
+    private Set<KindergartenChoise> kindergartenChoises;
 
-	public String getAddress() {
-		return address;
-	}
+    @OneToMany(mappedBy = "approvedKindergarten", cascade = { CascadeType.PERSIST, CascadeType.DETACH,
+	    CascadeType.MERGE }, fetch = FetchType.LAZY)
+    private Set<Application> approvedApplications;
 
-	public void setAddress(String address) {
-		this.address = address;
-	}
+    public Kindergarten() {
 
-	public String getElderate() {
-	    return elderate;
-	}
+    }
 
-	public String getManagerName() {
-	    return managerName;
-	}
+    public Kindergarten(String id, String name, String address, String elderate, int capacityAgeGroup2to3,
+	    int capacityAgeGroup3to6) {
+	super();
+	this.id = id;
+	this.name = name;
+	this.address = address;
+	this.elderate = elderate;
+	this.capacityAgeGroup2to3 = capacityAgeGroup2to3;
+	this.capacityAgeGroup3to6 = capacityAgeGroup3to6;
+    }
 
-	public void setManagerName(String managerName) {
-	    this.managerName = managerName;
-	}
+    public Kindergarten(String id, String name, String address, String elderate, String managerName,
+	    String managerSurname, int capacityAgeGroup2to3, int capacityAgeGroup3to6, Double latitude,
+	    Double longitude) {
+	super();
+	this.id = id;
+	this.name = name;
+	this.address = address;
+	this.elderate = elderate;
+	this.managerName = managerName;
+	this.managerSurname = managerSurname;
+	this.capacityAgeGroup2to3 = capacityAgeGroup2to3;
+	this.capacityAgeGroup3to6 = capacityAgeGroup3to6;
+	this.latitude = latitude;
+	this.longitude = longitude;
+    }
 
-	public String getManagerSurname() {
-	    return managerSurname;
-	}
+    public String getId() {
+	return id;
+    }
 
-	public void setManagerSurname(String managerSurname) {
-	    this.managerSurname = managerSurname;
-	}
+    public void setId(String id) {
+	this.id = id;
+    }
 
-	public void setElderate(String elderate) {
-	    this.elderate = elderate;
-	}
+    public String getName() {
+	return name;
+    }
 
-	public int getCapacityAgeGroup2to3() {
-	    return capacityAgeGroup2to3;
-	}
+    public void setName(String name) {
+	this.name = name;
+    }
 
-	public void setCapacityAgeGroup2to3(int capacityAgeGroup2to3) {
-		this.capacityAgeGroup2to3 = capacityAgeGroup2to3;
-	}
+    public String getAddress() {
+	return address;
+    }
 
-	public int getCapacityAgeGroup3to6() {
-		return capacityAgeGroup3to6;
-	}
+    public void setAddress(String address) {
+	this.address = address;
+    }
 
-	public void setCapacityAgeGroup3to6(int capacityAgeGroup3to6) {
-		this.capacityAgeGroup3to6 = capacityAgeGroup3to6;
-	}
+    public String getElderate() {
+	return elderate;
+    }
 
-	public int getPlacesTakenAgeGroup2to3() {
-		return placesTakenAgeGroup2to3;
-	}
+    public String getManagerName() {
+	return managerName;
+    }
 
-	public void setPlacesTakenAgeGroup2to3(int placesTakenAgeGroup2to3) {
-		this.placesTakenAgeGroup2to3 = placesTakenAgeGroup2to3;
-	}
+    public void setManagerName(String managerName) {
+	this.managerName = managerName;
+    }
 
-	public int getPlacesTakenAgeGroup3to6() {
-		return placesTakenAgeGroup3to6;
-	}
+    public String getManagerSurname() {
+	return managerSurname;
+    }
 
-	public void setPlacesTakenAgeGroup3to6(int placesTakenAgeGroup3to6) {
-		this.placesTakenAgeGroup3to6 = placesTakenAgeGroup3to6;
-	}
+    public void setManagerSurname(String managerSurname) {
+	this.managerSurname = managerSurname;
+    }
 
-	public Set<KindergartenChoise> getKindergartenChoises() {
-		return kindergartenChoises;
-	}
+    public void setElderate(String elderate) {
+	this.elderate = elderate;
+    }
 
-	public void setKindergartenChoises(Set<KindergartenChoise> kindergartenChoises) {
-		this.kindergartenChoises = kindergartenChoises;
-	}
-	
-	
+    public int getCapacityAgeGroup2to3() {
+	return capacityAgeGroup2to3;
+    }
 
-	public Set<Application> getApprovedApplications() {
-		return approvedApplications;
-	}
+    public void setCapacityAgeGroup2to3(int capacityAgeGroup2to3) {
+	this.capacityAgeGroup2to3 = capacityAgeGroup2to3;
+    }
 
-	public void setApprovedApplications(Set<Application> approvedApplications) {
-		this.approvedApplications = approvedApplications;
-	}
+    public int getCapacityAgeGroup3to6() {
+	return capacityAgeGroup3to6;
+    }
 
-	@Override
-	public int hashCode() {
-	    return Objects.hash(address, approvedApplications, capacityAgeGroup2to3, capacityAgeGroup3to6, elderate, id,
-		    kindergartenChoises, managerName, managerSurname, name, placesTakenAgeGroup2to3,
-		    placesTakenAgeGroup3to6);
-	}
+    public void setCapacityAgeGroup3to6(int capacityAgeGroup3to6) {
+	this.capacityAgeGroup3to6 = capacityAgeGroup3to6;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-	    if (this == obj)
-		return true;
-	    if (obj == null)
-		return false;
-	    if (getClass() != obj.getClass())
-		return false;
-	    Kindergarten other = (Kindergarten) obj;
-	    return Objects.equals(address, other.address)
-		    && Objects.equals(approvedApplications, other.approvedApplications)
-		    && capacityAgeGroup2to3 == other.capacityAgeGroup2to3
-		    && capacityAgeGroup3to6 == other.capacityAgeGroup3to6 && Objects.equals(elderate, other.elderate)
-		    && Objects.equals(id, other.id) && Objects.equals(kindergartenChoises, other.kindergartenChoises)
-		    && Objects.equals(managerName, other.managerName)
-		    && Objects.equals(managerSurname, other.managerSurname) && Objects.equals(name, other.name)
-		    && placesTakenAgeGroup2to3 == other.placesTakenAgeGroup2to3
-		    && placesTakenAgeGroup3to6 == other.placesTakenAgeGroup3to6;
-	}
+    public int getPlacesTakenAgeGroup2to3() {
+	return placesTakenAgeGroup2to3;
+    }
+
+    public void setPlacesTakenAgeGroup2to3(int placesTakenAgeGroup2to3) {
+	this.placesTakenAgeGroup2to3 = placesTakenAgeGroup2to3;
+    }
+
+    public int getPlacesTakenAgeGroup3to6() {
+	return placesTakenAgeGroup3to6;
+    }
+
+    public void setPlacesTakenAgeGroup3to6(int placesTakenAgeGroup3to6) {
+	this.placesTakenAgeGroup3to6 = placesTakenAgeGroup3to6;
+    }
+
+    public Set<KindergartenChoise> getKindergartenChoises() {
+	return kindergartenChoises;
+    }
+
+    public void setKindergartenChoises(Set<KindergartenChoise> kindergartenChoises) {
+	this.kindergartenChoises = kindergartenChoises;
+    }
+
+    public Set<Application> getApprovedApplications() {
+	return approvedApplications;
+    }
+
+    public void setApprovedApplications(Set<Application> approvedApplications) {
+	this.approvedApplications = approvedApplications;
+    }
+
+    public Double getLatitude() {
+	return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+	this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+	return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+	this.longitude = longitude;
+    }
+
+    @Override
+    public int hashCode() {
+	return Objects.hash(address, capacityAgeGroup2to3, capacityAgeGroup3to6, elderate, id, latitude, longitude,
+		managerName, managerSurname, name, placesTakenAgeGroup2to3, placesTakenAgeGroup3to6);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+	if (this == obj)
+	    return true;
+	if (obj == null)
+	    return false;
+	if (getClass() != obj.getClass())
+	    return false;
+	Kindergarten other = (Kindergarten) obj;
+	return Objects.equals(address, other.address) && capacityAgeGroup2to3 == other.capacityAgeGroup2to3
+		&& capacityAgeGroup3to6 == other.capacityAgeGroup3to6 && Objects.equals(elderate, other.elderate)
+		&& Objects.equals(id, other.id) && Objects.equals(latitude, other.latitude)
+		&& Objects.equals(longitude, other.longitude) && Objects.equals(managerName, other.managerName)
+		&& Objects.equals(managerSurname, other.managerSurname) && Objects.equals(name, other.name)
+		&& placesTakenAgeGroup2to3 == other.placesTakenAgeGroup2to3
+		&& placesTakenAgeGroup3to6 == other.placesTakenAgeGroup3to6;
+    }
 
 }

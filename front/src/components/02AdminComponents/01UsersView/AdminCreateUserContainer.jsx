@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-
 import http from '../../00Services/httpService';
 import apiEndpoint from '../../00Services/endpoint';
 import swal from 'sweetalert';
-
 import inputValidator from '../../00Services/InputValidator';
 import AdminCreateUserComponent from './AdminCreateUserComponent';
-
 
 class AdminCreateUserContainer extends Component {
 

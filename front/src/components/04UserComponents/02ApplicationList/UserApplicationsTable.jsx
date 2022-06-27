@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-
 import Table from '../../05ReusableComponents/Table';
 
 export default class UserApplicationsTable extends Component {
@@ -12,10 +11,16 @@ export default class UserApplicationsTable extends Component {
       content: application => <span>{application.submitedAt}</span>
     },
     {
+      key: 'childName',
+      path: 'childName',
+      label: 'Vaiko vardas',
+      content: application => <span>{application.childName}</span>
+    },
+    {
       key: 'childSurname',
       path: 'childSurname',
-      label: 'Vaiko vardas, pavardė',
-      content: application => <span>{application.childName} {application.childSurname}</span>
+      label: 'Vaiko pavardė',
+      content: application => <span>{application.childSurname}</span>
     },
     {
       key: 'status',
@@ -46,32 +51,33 @@ export default class UserApplicationsTable extends Component {
       label: 'Veiksmai',
       content: application =>
         <div className="d-flex justify-content-center">
-          <button
-            onClick={() => this.props.handleApplicationReview(application.id)}
-            id="btnReviewCompensation"
-            className="btn btn-primary btn-sm btn-block me-2"
-          >Peržiūrėti
-          </button>
+          {application.status !== "Patvirtintas" &&
+            <button
+              onClick={() => this.props.handleApplicationReview(application)}
+              id="btnReviewCompensation"
+              className="btn btn-outline-primary btn-sm btn-block me-2"
+            >Peržiūrėti
+            </button>
+          }
 
           {/* Show this button, if application status is "Parvirtintas" */}
           {application.status === "Patvirtintas" &&
             <button
-              id="btnDownloadContractUser"
+              id="btnReviewContractUser"
               className="btn btn-success btn-block btn-sm me-2"
-              onClick={() => this.props.handleContractDownload(application)}
-            >Parsisiųsti
+              onClick={() => this.props.handleKindergartenContract(application.id)}
+            >Pasirašymui
             </button>
           }
 
           <button onClick={() => this.props.handleApplicationDelete(application.id)}
             id="btnDeleteApplication"
-            className="btn btn-danger btn-block btn-sm"
+            className="btn btn-outline-danger btn-block btn-sm"
           >Ištrinti
           </button>
         </div>
     }
   ]
-
 
   render() {
     return (

@@ -1,6 +1,5 @@
 import React from "react";
 import inputValidator from "../../00Services/InputValidator";
-import "./Application.css";
 
 export default function ChildFormComponent(props) {
 
@@ -10,8 +9,8 @@ export default function ChildFormComponent(props) {
   return (
     <div>
       <div className="form">
-        <div className="pb-1">
-          <h6 className="formHeader">Vaiko duomenys</h6>
+        <div className="formHeader application-form-header">
+          <h6>Vaiko duomenys</h6>
         </div>
         <div className="form-group mb-3">
           <label className="form-label" htmlFor="txtChildPersonalCode">

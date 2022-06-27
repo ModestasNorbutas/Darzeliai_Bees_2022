@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-
 import Table from "../../05ReusableComponents/Table";
 
 export default class UserCompensationsTable extends Component {
@@ -12,22 +11,22 @@ export default class UserCompensationsTable extends Component {
       content: compensation => <span>{compensation.submitedAt}</span>
     },
     {
-      key: 'childPersonalCode',
-      path: 'childPersonalCode',
-      label: 'Vaiko asmens kodas',
-      content: compensation => <span>{compensation.childPersonalCode}</span>
-    },
-    {
       key: 'childName',
       path: 'childName',
-      label: 'Vaiko vardas, pavardė',
-      content: compensation => <span>{compensation.childName} {compensation.childSurname}</span>
+      label: 'Vaiko vardas',
+      content: compensation => <span>{compensation.childName}</span>
+    },
+    {
+      key: 'childSurname',
+      path: 'childSurname',
+      label: 'Vaiko pavardė',
+      content: compensation => <span>{compensation.childSurname}</span>
     },
     {
       key: 'applicationStatus',
       path: 'applicationStatus',
       label: 'Prašymo statusas',
-      content: compensation => <span>{compensation.applicationStatus} </span>
+      content: compensation => <span>{compensation.applicationStatus}</span>
     },
     {
       key: 'entityName',
@@ -42,22 +41,14 @@ export default class UserCompensationsTable extends Component {
         <div className="d-flex justify-content-around">
           <button
             id="btnReviewCompensationUser"
-            className="btn btn-primary btn-sm btn-block me-2"
+            className="btn btn-outline-primary btn-sm btn-block me-2"
             onClick={() => this.props.handleCompensationReview(compensation.id)}
           >Peržiūrėti
           </button>
-          {/* Show this button, if application status is "Parvirtintas" */}
-          {compensation.applicationStatus === "Patvirtintas" &&
-            <button
-              id="btnReviewContractUser"
-              className="btn btn-success btn-block btn-sm me-2"
-              onClick={() => this.props.handleCompensationContractReview(compensation.id)}
-            >Pasirašymui
-            </button>
-          }
+
           <button
             id="btnDeleteCompensation"
-            className="btn btn-danger btn-block btn-sm"
+            className="btn btn-outline-danger btn-block btn-sm"
             onClick={() => this.props.handleCompensationDelete(compensation.id)}
           >Ištrinti
           </button>

@@ -1,47 +1,45 @@
 import React, { Component } from 'react';
 
-import '../../../App.css';
-
 import http from '../../00Services/httpService';
 import apiEndpoint from '../../00Services/endpoint';
 
-class DownloaderContainer extends Component {
+export default class DownloaderContainer extends Component {
 
-    getUserDetailsArchive() {
+  getUserDetailsArchive() {
 
-        const method = 'GET';
-        const url = `${apiEndpoint}/api/users/user/zip`;
+    const method = 'GET';
+    const url = `${apiEndpoint}/api/users/user/zip`;
 
-        http.request({
-            url,
-            method,
-            responseType: 'blob'
-        }).then(({ data }) => {
+    http.request({
+      url,
+      method,
+      responseType: 'blob'
+    }).then(({ data }) => {
 
-            const downloadUrl = window.URL.createObjectURL(new Blob([data]));
+      const downloadUrl = window.URL.createObjectURL(new Blob([data]));
 
-            const link = document.createElement('a');
+      const link = document.createElement('a');
 
-            link.href = downloadUrl;
-            link.setAttribute('download', 'naudotojas.zip');
+      link.href = downloadUrl;
+      link.setAttribute('download', 'naudotojas.zip');
 
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
 
-            window.document.activeElement.blur();
+      window.document.activeElement.blur();
 
-        }).catch(() => { });
-    }
+    }).catch(() => { });
+  }
 
-    render() {
-
-        return (
-
-            <button className="btn btn-link pt-3 px-0" onClick={this.getUserDetailsArchive} id="btnGetUserZip">Atsisiųsti informaciją apie kaupiamus asmens duomenis (.zip)</button>
-
-        )
-    }
+  render() {
+    return (
+      <button
+        className="btn btn-link pt-3 px-0"
+        onClick={this.getUserDetailsArchive}
+        id="btnGetUserZip"
+      >Atsisiųsti informaciją apie kaupiamus asmens duomenis (.zip)
+      </button>
+    )
+  }
 }
-
-export default DownloaderContainer

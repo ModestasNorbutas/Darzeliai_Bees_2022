@@ -1,6 +1,7 @@
 package it.akademija.journal;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,17 +16,47 @@ import it.akademija.user.UserDAO;
 
 @Service
 public class JournalService {
+    
+    private ZoneId ltTimezone = ZoneId.of("Europe/Vilnius");
 
-	@Autowired
-	private JournalEntryDAO journalEntryDAO;
+    @Autowired
+    private JournalEntryDAO journalEntryDAO;
 
-	@Autowired
-	private UserDAO userDAO;
+    @Autowired
+    private UserDAO userDAO;
 
-	@Transactional(readOnly = true)
-	public Page<JournalEntry> getAllJournalEntries(Pageable pageable) {
-		return journalEntryDAO.getAllJournalEntries(pageable);
+    @Transactional(readOnly = true)
+    public Page<JournalEntry> getAllJournalEntries(Pageable pageable, JournalRequestDTO request) {
+	
+	if (request.getUsername().equals("") && request.getStartTime() == null && request.getEndTime() == null ) {
+	    return journalEntryDAO.getAllJournalEntries(pageable);
+	    
+	} else {
+	    
+	    String username = request.getUsername().trim();
+	    LocalDateTime startTime = request.getStartTime();
+	    LocalDateTime endTime = request.getEndTime();
+	    
+	    if (startTime == null) {
+		startTime = LocalDateTime.parse("2000-01-01T00:00:00.00");
+	    } 
+		
+	    if (endTime == null) {
+		endTime = LocalDateTime.parse("3000-01-01T00:00:00.00");
+	    } 
+	    
+	    if (username.equals("")) {
+		return journalEntryDAO.getJournalEntriesByTime(pageable, startTime, endTime);
+	    }
+	    
+	    if (username.equals("NULL")) {
+		return journalEntryDAO.getNullJournalEntriesByTime(pageable, startTime, endTime);
+	    }
+
+	    return journalEntryDAO.getJournalEntriesByUsernameAndTime(pageable, username, startTime, endTime);
 	}
+	   
+    }
 
 	/**
 	 * Metodas visiems atvejams, kai pasiekiamas user iš SecurityContext
@@ -38,12 +69,12 @@ public class JournalService {
 		String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
 		User currentUser = userDAO.findByUsername(currentUsername);
 		Long currentUserID = 0L;
-		
+				
 		if(currentUser!=null) {
 			currentUserID = currentUser.getUserId();
 		} 
 		
-		JournalEntry entry = new JournalEntry(currentUserID, currentUsername, LocalDateTime.now(), operationType,
+		JournalEntry entry = new JournalEntry(currentUserID, currentUsername, LocalDateTime.now(ltTimezone), operationType,
 				objectID, objectType, entryMessage);
 
 		journalEntryDAO.saveAndFlush(entry);
@@ -83,7 +114,7 @@ public class JournalService {
 			currentUserID = currentUser.getUserId();
 		} 
 		
-		JournalEntry entry = new JournalEntry(currentUserID, currentUsername, LocalDateTime.now(), operationType,
+		JournalEntry entry = new JournalEntry(currentUserID, currentUsername, LocalDateTime.now(ltTimezone), operationType,
 				currentUserID, objectType, entryMessage);
 
 		journalEntryDAO.saveAndFlush(entry);
@@ -99,7 +130,7 @@ public class JournalService {
 	public void newJournalEntry(Long currentUserID, String currentUsername, OperationType operationType, Long objectID,
 			ObjectType objectType, String entryMessage) {
 
-		JournalEntry entry = new JournalEntry(currentUserID, currentUsername, LocalDateTime.now(), operationType,
+		JournalEntry entry = new JournalEntry(currentUserID, currentUsername, LocalDateTime.now(ltTimezone), operationType,
 				objectID, objectType, entryMessage);
 
 		journalEntryDAO.saveAndFlush(entry);

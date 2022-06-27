@@ -63,9 +63,7 @@ public class SubmitNewCompensationApplicationPage extends AbstractObjectPage {
     @FindBy(id = "txtChildSurname")
     public WebElement compensationChildSurname;
 
-
     //elements
-//    @FindBy (xpath = "//*[text()='Mano prašymai dėl kompensacijos']")
     @FindBy (xpath = "//h6[text()='Mano prašymai dėl kompensacijos'][@class='ps-2 pt-3']")
     public WebElement compensationsApplicationsListName;
 
@@ -117,21 +115,16 @@ public class SubmitNewCompensationApplicationPage extends AbstractObjectPage {
        return compensationsApplicationsListName.getText();
     }
 
-
     //click buttons
+
     public void clickNavButtonApplicationForCompensation() {
         buttonApplicationForCompensation.click();
     }
 
-//    public void clickButtonReviewCompensationApplication(){
-//        buttonReviewCompensation.click();
-//    }
-
     public void clickButtonReviewCompensationApplication() throws InterruptedException {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
         driver.findElement(By.tagName("body")).sendKeys(Keys.END);
-//        Thread.sleep(200);
-//        buttonReviewCompensation.click();
+        Thread.sleep(200);
         WebElement button = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.id("btnReviewCompensationUser")));
         button.click();
@@ -185,11 +178,12 @@ public class SubmitNewCompensationApplicationPage extends AbstractObjectPage {
         String childPersonalCode = formData.get(8);
         inputChildPersonalCode(childPersonalCode);
         inputChildSurname(childSurname);
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        wait.until(ExpectedConditions.textToBePresentInElementValue(By.id("txtChildName"),"Sandijus"));
     }
 
     public void fillInTheCompensationApplication() throws IOException {
-//        clickNavButtonApplicationForCompensation();
-
         clickNavButtonNewCompensApplication();
         compensatApplicFormKindergartensDetails();
         compensatApplicFormChildDetails();
@@ -206,21 +200,20 @@ public class SubmitNewCompensationApplicationPage extends AbstractObjectPage {
 
     public Boolean compensationsApplicationSuccessful() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-        return wait.until(ExpectedConditions.textToBe(By.xpath("/html/body/div[2]/div/div[1]"), "Kompensacijos prašymas sukuras sėkmingai"));
+        return wait.until(ExpectedConditions.textToBe(By.xpath("/html/body/div[2]/div/div[1]"), "Kompensacijos " +
+                "prašymas sukurtas sėkmingai"));
     }
 
-//    public void assertEquals(String actual, String expected) {
-//        String expectedCompensationApplicationTableTitle = "Mano prašymai dėl kompensacijos";
-//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-//        String actualCompensationApplicationTableTitle =  driver.findElement(By.partialLinkText("Mano prašymai dėl " +
-//                "kompensacijos")).getText();
-//        assertEquals(actualCompensationApplicationTableTitle, expectedCompensationApplicationTableTitle);
-//
-//    }
+    public Boolean verifyIfCompensationsApplicationsListNameIsShowen() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        return wait.until(ExpectedConditions.textToBe(By.xpath("//h6[text()='Mano prašymai dėl " +
+                "kompensacijos'][@class='ps-2 pt-3']"), "Mano prašymai dėl kompensacijos"));
+    }
+
 
     public Boolean verifyIfApplicationIsShowen(){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-        return wait.until(ExpectedConditions.textToBe(By.xpath("//*[@id='root']/div/div/div/div/div/div/h5"), "Prašymas skirti kompensaciją privačiam darželiui"));
+        return wait.until(ExpectedConditions.textToBe(By.xpath("//*[@id='root']/div/div/div/div/div[1]/div[1]/h6[1]"), "Prašymas skirti kompensaciją privačiam darželiui"));
     }
     public SubmitNewCompensationApplicationPage(WebDriver driver) {
         super(driver);

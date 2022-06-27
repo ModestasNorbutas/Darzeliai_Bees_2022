@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import it.akademija.App;
 
 @SpringBootTest(classes = { App.class,
-		ApplicationController.class }, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+ApplicationController.class }, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ApplicationControllerTest {
 
 	@Autowired

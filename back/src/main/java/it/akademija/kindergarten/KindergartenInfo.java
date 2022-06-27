@@ -11,6 +11,8 @@ public class KindergartenInfo {
 	private String name;
 	private String address;
 	private String elderate;
+	private Double latitude;
+	private Double longitude;
 
 	public KindergartenInfo() {
 	}
@@ -20,6 +22,17 @@ public class KindergartenInfo {
 		this.name = name;
 		this.address = address;
 		this.elderate = elderate;
+	}
+
+	public KindergartenInfo(String id, String name, String address, String elderate, Double latitude,
+		Double longitude) {
+	    super();
+	    this.id = id;
+	    this.name = name;
+	    this.address = address;
+	    this.elderate = elderate;
+	    this.latitude = latitude;
+	    this.longitude = longitude;
 	}
 
 	public String getId() {
@@ -52,6 +65,22 @@ public class KindergartenInfo {
 
 	public void setElderate(String elderate) {
 		this.elderate = elderate;
+	}
+
+	public Double getLatitude() {
+	    return latitude;
+	}
+
+	public void setLatitude(Double latitude) {
+	    this.latitude = latitude;
+	}
+
+	public Double getLongitude() {
+	    return longitude;
+	}
+
+	public void setLongitude(Double longitude) {
+	    this.longitude = longitude;
 	}
 
 }

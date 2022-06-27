@@ -8,6 +8,7 @@ import it.akademija.user.UserDTO;
 
 public class CompensationApplicationDTO {
 	
+	private Long id;
 	private LocalDate birthdate;
 	private String childName;
 	private String childPersonalCode;
@@ -21,21 +22,49 @@ public class CompensationApplicationDTO {
 		super();
 	}
 	
-	public CompensationApplicationDTO(LocalDate birthdate, String childName, 
-										String childPersonalCode, 
-										String childSurname,
-										KindergartenDataDTO kindergartenData, 
-										UserDTO mainGuardian) {
+	public CompensationApplicationDTO(
+			Long id, 
+			LocalDate birthdate, 
+			String childName, 
+			String childPersonalCode, 
+			String childSurname,
+			KindergartenDataDTO kindergartenData, 
+			UserDTO mainGuardian) {
 		super();
+		this.id = id;
+		this.birthdate = birthdate;
+		this.childName = childName;
+		this.childPersonalCode = childPersonalCode;
+		this.childSurname = childSurname;
 		this.kindergartenData = kindergartenData;
 		this.mainGuardian = mainGuardian;
 	}
 	
-	
+	public CompensationApplicationDTO( 
+			LocalDate birthdate, 
+			String childName, 
+			String childPersonalCode, 
+			String childSurname,
+			KindergartenDataDTO kindergartenData, 
+			UserDTO mainGuardian) {
+		super();
+		this.birthdate = birthdate;
+		this.childName = childName;
+		this.childPersonalCode = childPersonalCode;
+		this.childSurname = childSurname;
+		this.kindergartenData = kindergartenData;
+		this.mainGuardian = mainGuardian;
+	}
 
-	public CompensationApplicationDTO(LocalDate birthdate, String childName, String childPersonalCode,
-			String childSurname, KindergartenDataDTO kindergartenData, UserDTO mainGuardian,
-			ApplicationStatus applicationStatus, LocalDate approvalDate) {
+	public CompensationApplicationDTO(
+			LocalDate birthdate, 
+			String childName, 
+			String childPersonalCode,
+			String childSurname, 
+			KindergartenDataDTO kindergartenData, 
+			UserDTO mainGuardian,
+			ApplicationStatus applicationStatus, 
+			LocalDate approvalDate) {
 		super();
 		this.birthdate = birthdate;
 		this.childName = childName;
@@ -46,7 +75,15 @@ public class CompensationApplicationDTO {
 		this.applicationStatus = applicationStatus;
 		this.approvalDate = approvalDate;
 	}
+	
+	public Long getId() {
+		return id;
+	}
 
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
 	public ApplicationStatus getApplicationStatus() {
 		return applicationStatus;
 	}

@@ -36,7 +36,7 @@ public class CompensationApplicationService {
 	
 	@Autowired
 	private ChildDataService childDataService;
-	
+
 	/**
 	 * Create an compensation application for logged in user's child with specified child data.
 	 * Receives and updates user data. Sets received
@@ -46,7 +46,7 @@ public class CompensationApplicationService {
 	 * @param data
 	 */
 	@Transactional
-	public void createNewCompensationApplication(CompensationApplicationDTO compensationApplicationDTO) {
+	public CompensationApplication createNewCompensationApplication(CompensationApplicationDTO compensationApplicationDTO) {
 		
 		CompensationApplication compensationApplication = new CompensationApplication();
 		
@@ -73,6 +73,7 @@ public class CompensationApplicationService {
 		childData.setCompensationApplication(compensationApplication);
 		kindergartenData.setCompensationApplication(compensationApplication);
 		
+		return compensationApplication;
 	}
 	
 	/**
@@ -83,7 +84,7 @@ public class CompensationApplicationService {
 	 * @return set of user compensation applications
 	 */
 	@Transactional(readOnly = true)
-	public Set<CompensationApplicationInfoUser> getAllUserCompensationApplications(String currentUsername) {
+	public Set<CompensationApplicationInfoUser> getAllUserCompensationApplicationsInfoUser(String currentUsername) {
 		return compensationApplicationDAO.findAllUserCompensationApplications(currentUsername);
 	}
 	
@@ -141,11 +142,7 @@ public class CompensationApplicationService {
 		compensationApplicationInfo.setChildDataInfo(childDataInfo);
 		
 		return compensationApplicationInfo;
-		
-		
 	}
-	
-	
 	
 	/**
 	 * Delete user compensation application by id. Also deletes ChildData
@@ -154,20 +151,9 @@ public class CompensationApplicationService {
 	 * @param id
 	 * 
 	 */
-	public void deleteUserCompensationApplicationById(Long id){
+	public void deleteCompensationApplicationById(Long id){
 			
-		CompensationApplication compensationApplication = 
-				compensationApplicationDAO.getById(id);
-		
-		childDataService.deleteChildData(
-				compensationApplication.getChildData());
-		
-		kindergartenDataService.deleteKindergartenData(
-				compensationApplication.getKindergartenData());
-		
-		compensationApplicationDAO.delete(
-				compensationApplication);
-				
+		compensationApplicationDAO.deleteById(id);
 	}
 	
 	public boolean isCompensationApplicationPresentAndMatchesMainGuardian(Long id) {
@@ -192,9 +178,6 @@ public class CompensationApplicationService {
 		return false;
 	}
 	
-	
-	
-	
 	/**
 	 * 
 	 * Check if compensation application for a child already exists
@@ -206,9 +189,8 @@ public class CompensationApplicationService {
 		return childDataService.childExistsByPersonalCode(childPersonalCode);
 	}
 
-	
 
-	public boolean existsCompensationApplicationById(Long id) {
+	public boolean isCompensationApplicationExistsById(Long id) {
 		return compensationApplicationDAO.existsById(id);
 	}
 
@@ -226,46 +208,13 @@ public class CompensationApplicationService {
 		return compensationApplicationDAO.getById(id);
 	}
 
-	public void editCompesationApplication(
-			CompensationApplicationDTO compensationApplicationdDTO,
-			Long id) {
-		
-		CompensationApplication compensationApplication = 
-				compensationApplicationDAO.getById(id);
-		
-		String currentUsername = SecurityContextHolder
-				.getContext()
-				.getAuthentication()
-				.getName();
-		
-		userService.updateUserData(
-				compensationApplicationdDTO.getMainGuardian(), currentUsername);
-		
-		kindergartenDataService.updateKindergartenData(
-				compensationApplicationdDTO.getKindergartenData(), 
-				compensationApplication.getKindergartenData().getId());
-		
-		childDataService.updateChildData(compensationApplicationdDTO, compensationApplication.getId());
-		
-		compensationApplicationDAO.save(compensationApplication);
+	public Page<CompensationApplicationInfoUser> getPageFromCompensationApplications(Pageable pageable, String filter) {
+	    
+	    if (filter.equals("")) {
+		return compensationApplicationDAO.findAllCompensationApplicationInfoUser(pageable);
+	    }
+
+	    	return compensationApplicationDAO.findAllCompensationsByChildPersonalCode(filter, pageable);
 	}
 
-	
-	
-	public Page<CompensationApplicationInfoUser> getPageFromCompensationApplications(Pageable pageable, String filter) {
-		
-//		if(filter.equals("childPersonalCode")) {
-//			return compensationApplicationDAO
-//					.findAllCompensationsByChildPersonalCode(pageable, filter);
-//		}
-//		else if(filter.equals("entityName")) {
-//			return compensationApplicationDAO
-//					.findAllCompensationsByEntityName(pageable, filter);
-//		}
-//		return compensationApplicationDAO.findAllCompensationApplicationInfoUser(pageable);
-	    	return compensationApplicationDAO.findAllCompensationsByChildPersonalCode(filter, pageable);
-		
-	}
-	
-		
 }

@@ -1,5 +1,7 @@
 package it.akademija.kindergartenchoise;
 
+import java.util.Objects;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,61 +18,79 @@ import it.akademija.kindergarten.Kindergarten;
 @Entity
 public class KindergartenChoise {
 
-	@Id
-	@Column(name = "choise_id")
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long choiseId;
+    @Id
+    @Column(name = "choise_id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long choiseId;
 
-	@ManyToOne
-	@JoinColumn(name = "kindergarten_id")
-	private Kindergarten kindergarten;
+    @ManyToOne
+    @JoinColumn(name = "kindergarten_id")
+    private Kindergarten kindergarten;
 
-	@ManyToOne
-	@JoinColumn(name = "application_id")
-	private Application application;
+    @ManyToOne
+    @JoinColumn(name = "application_id")
+    private Application application;
 
-	@Min(value = 1)
-	@Max(value = 5)
-	private int kindergartenChoisePriority;
+    @Min(value = 1)
+    @Max(value = 5)
+    private int kindergartenChoisePriority;
 
-	public KindergartenChoise() {
+    public KindergartenChoise() {
 
-	}
+    }
 
-	public KindergartenChoise(Kindergarten kindergarten, Application application,
-			@Min(1) @Max(5) int kindergartenChoisePriority) {
+    public KindergartenChoise(Kindergarten kindergarten, Application application,
+	    @Min(1) @Max(5) int kindergartenChoisePriority) {
 
-		this.kindergarten = kindergarten;
-		this.application = application;
-		this.kindergartenChoisePriority = kindergartenChoisePriority;
-	}
+	this.kindergarten = kindergarten;
+	this.application = application;
+	this.kindergartenChoisePriority = kindergartenChoisePriority;
+    }
 
-	public Kindergarten getKindergarten() {
-		return kindergarten;
-	}
+    public Kindergarten getKindergarten() {
+	return kindergarten;
+    }
 
-	public void setKindergarten(Kindergarten kindergarten) {
-		this.kindergarten = kindergarten;
-	}
+    public void setKindergarten(Kindergarten kindergarten) {
+	this.kindergarten = kindergarten;
+    }
 
-	public Application getApplication() {
-		return application;
-	}
+    public Application getApplication() {
+	return application;
+    }
 
-	public void setApplication(Application application) {
-		this.application = application;
-	}
+    public void setApplication(Application application) {
+	this.application = application;
+    }
 
-	public int getKindergartenChoisePriority() {
-		return kindergartenChoisePriority;
-	}
+    public int getKindergartenChoisePriority() {
+	return kindergartenChoisePriority;
+    }
 
-	public void setKindergartenChoisePriority(int kindergartenChoisePriority) {
-		this.kindergartenChoisePriority = kindergartenChoisePriority;
-	}
+    public void setKindergartenChoisePriority(int kindergartenChoisePriority) {
+	this.kindergartenChoisePriority = kindergartenChoisePriority;
+    }
 
-	public Long getId() {
-		return choiseId;
-	}
+    public Long getId() {
+	return choiseId;
+    }
+
+    @Override
+    public int hashCode() {
+	return Objects.hash(choiseId, kindergartenChoisePriority);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+	if (this == obj)
+	    return true;
+	if (obj == null)
+	    return false;
+	if (getClass() != obj.getClass())
+	    return false;
+	KindergartenChoise other = (KindergartenChoise) obj;
+	return Objects.equals(choiseId, other.choiseId)
+		&& kindergartenChoisePriority == other.kindergartenChoisePriority;
+    }
 
 }

@@ -5,7 +5,7 @@ export default function AdminCreateUserComponent(props) {
 
   return (
     <div >
-      <h6 className="py-3"><b>Naujo naudotojo sukūrimas</b></h6>
+      <h6 className="py-3">Naujo naudotojo sukūrimas</h6>
       <form onSubmit={props.handleSubmit}>
 
         <div className="form">
@@ -130,11 +130,11 @@ export default function AdminCreateUserComponent(props) {
 
         </div>
 
-        <h6 className="py-3"><b>Naudotojo prisijungimai</b></h6>
+        <h6 className="py-3">Naudotojo prisijungimai</h6>
 
         <div className="row">
           <div className="col-12">
-            <p><b>Naudotojo vardas</b></p>
+            <p>Naudotojo vardas</p>
           </div>
           <div className="col-12">
             <p>{props.state.email}</p>
@@ -142,7 +142,7 @@ export default function AdminCreateUserComponent(props) {
         </div>
         <div className="row">
           <div className="col-12">
-            <p><b>Slaptažodis</b></p>
+            <p>Slaptažodis</p>
           </div>
           <div className="col-12">
             <p>{props.state.email}</p>

@@ -6,8 +6,8 @@ export default class CompensationListTable extends Component {
     {
       key: 'id',
       path: 'id',
-      label: '#',
-      content: application => <span> {application.id}</span>
+      label: 'Id',
+      content: compensation => <span> {compensation.id}</span>
     },
     {
       key: 'applicationStatus',
@@ -18,7 +18,7 @@ export default class CompensationListTable extends Component {
     {
       key: 'submitedAt',
       path: 'submitedAt',
-      label: 'Pateikimo data',
+      label: 'Pateikimo\u00a0data',
       content: compensation => <span> {compensation.submitedAt}</span>
     },
     {
@@ -52,19 +52,19 @@ export default class CompensationListTable extends Component {
         <div className="d-flex justify-content-center">
           <button onClick={() => this.props.handleCompensationReview(compensation.id)}
             id="btnReviewCompensationManager"
-            className="btn btn-primary btn-sm btn-block me-2"
+            className="btn btn-outline-primary btn-sm btn-block me-2"
           >Peržiūrėti
           </button>
           <button
             id="btnDeactivateCompensationManager"
-            className="btn btn-danger btn-sm btn-block me-2"
+            className="btn btn-outline-danger btn-sm btn-block me-2"
             onClick={() => this.props.handleCompensationDeactivate(compensation)}
             disabled={compensation.applicationStatus !== "Pateiktas"}
           >Atmesti
           </button>
           <button
             id="btnConfirmCompensationManager"
-            className="btn btn-success btn-sm btn-block"
+            className="btn btn-outline-success btn-sm btn-block"
             onClick={() => this.props.handleCompensationConfirm(compensation)}
             disabled={compensation.applicationStatus !== "Pateiktas"}
           >Patvirtinti
@@ -74,7 +74,6 @@ export default class CompensationListTable extends Component {
   ]
 
   render() {
-
     return (
       <Table
         columns={this.columns}

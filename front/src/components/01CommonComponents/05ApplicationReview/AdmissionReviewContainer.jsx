@@ -3,6 +3,8 @@ import apiEndpoint from "../../00Services/endpoint";
 import http from "../../00Services/httpService";
 import swal from "sweetalert";
 import AdmissionReviewComponent from "./AdmissionReviewComponent";
+
+//import KindergartenContractComponent from "./KindergartenContractComponent";
 import AuthContext from "../../00Services/AuthContext";
 
 export default class AdmissionReviewContainer extends Component {
@@ -28,7 +30,7 @@ export default class AdmissionReviewContainer extends Component {
       priorities: null
     };
     this.handleReturn = this.handleReturn.bind(this);
-    this.handleDownloadContract = this.handleDownloadContract.bind(this);
+    //this.handleDownloadContract = this.handleDownloadContract.bind(this);
   };
 
   componentDidMount() {
@@ -64,6 +66,7 @@ export default class AdmissionReviewContainer extends Component {
       });
   }
 
+  /* 
   handleDownloadContract(data) {
     let role = this.context.state.role.toLowerCase();
     http.request({
@@ -86,6 +89,27 @@ export default class AdmissionReviewContainer extends Component {
       })
     })
   }
+  */
+
+  handleDelete = () => {
+    swal({
+      text: "Ar tikrai norite ištrinti prašymą?",
+      buttons: ["Ne", "Taip"],
+      dangerMode: true,
+    }).then((actionConfirmed) => {
+      if (actionConfirmed) {
+        http.delete(`${apiEndpoint}/api/prasymai/user/delete/${this.state.id}`)
+          .then((response) => {
+            swal({
+              text: response.data,
+              button: "Gerai"
+            })
+          }).then(() => {
+            this.props.history.push("/prasymai")
+          }).catch(() => { });
+      }
+    });
+  }
 
   handleReturn() {
     let route = this.context.state.role === "USER" ? "/prasymai" : "/eile";
@@ -97,8 +121,9 @@ export default class AdmissionReviewContainer extends Component {
       <AdmissionReviewComponent
         state={this.state}
         role={this.context.state.role}
-        handleDownloadContract={this.handleDownloadContract}
+        //handleDownloadContract={this.handleDownloadContract}
         handleReturn={this.handleReturn}
+        handleDelete={this.handleDelete}
       />
     )
   }

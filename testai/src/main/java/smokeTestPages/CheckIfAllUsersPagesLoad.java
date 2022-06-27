@@ -14,10 +14,7 @@ public class CheckIfAllUsersPagesLoad extends AbstractObjectPage {
 	// nav buttons
 	@FindBy (id= "navAdminApplicationStats")
 	public WebElement navPrasymuStatistikaAdmin;
-	
-	@FindBy (id= "navManagerApplicationAdmin")
-	public WebElement navPrasymuRedagavimas;
-	
+
 	@FindBy (id= "navAdminEventLog")
 	public WebElement navIvykiuZurnalas;
 	
@@ -38,11 +35,7 @@ public class CheckIfAllUsersPagesLoad extends AbstractObjectPage {
 	public void clickNavPrasymuStatistikaParent () {
 		navPrasymuStatistikaParent.click();
 	}
-	
-	public void clickNavPrasymuRedagavimas () {
-		navPrasymuRedagavimas.click();
-	}
-	
+
 	public void clickNavIvykiuZurnalas () {
 		navIvykiuZurnalas.click();
 	}
@@ -56,12 +49,7 @@ public class CheckIfAllUsersPagesLoad extends AbstractObjectPage {
 		  WebDriverWait wait = new WebDriverWait(driver, 10);
 		  return wait.until(ExpectedConditions.textToBe(By.xpath("//*/h6"), "Prašymų statistika"));
 		}
-	
-	public Boolean assertPrasymuRedagavimasPageTitle () {
-		  WebDriverWait wait = new WebDriverWait(driver, 10);
-		  return wait.until(ExpectedConditions.textToBe(By.xpath("//*/h6"), "Prašymų sąrašo redagavimo administravimas"));
-		}
-	
+
 	public Boolean assertIvykiuZurnalasPageTitle () {
 		  WebDriverWait wait = new WebDriverWait(driver, 10);
 		  return wait.until(ExpectedConditions.textToBe(By.xpath("//*/h6"), "Sistemos įvykių žurnalas"));
@@ -84,7 +72,7 @@ public class CheckIfAllUsersPagesLoad extends AbstractObjectPage {
 	
 	public Boolean assertSukurtiPrasymaPageLoaded () {
 		  WebDriverWait wait = new WebDriverWait(driver, 10);
-		  return wait.until(ExpectedConditions.textToBe(By.xpath("//*[@id='root']/div/div/div/div/div[2]/div/div/form/div[1]/div[1]/div/div/h6"), "Globėjo duomenys"));
+		  return wait.until(ExpectedConditions.textToBe(By.xpath("//*[@id='root']/div/div/div/div/div[2]/div/div/form/div[1]/div[1]/div/div/div[1]/h6"), "Globėjo duomenys"));
 		}
 	
 	// constructor

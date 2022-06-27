@@ -71,5 +71,15 @@ public interface UserDAO extends JpaRepository<User, Long> {
 			+ "WHERE a.id=?1", 
 			nativeQuery = false)
 	UserInfo getUserInfoByApplicationId(Long id);
+	
+	@Query("SELECT new it.akademija.user.UserInfo("
+		+ "u.userId, "
+		+ "u.role, "
+		+ "u.name, "
+		+ "u.surname, "
+		+ "u.username, "
+		+ "u.email) "
+		+ "FROM User u WHERE u.username LIKE(CONCAT('%', ?1, '%'))")
+	Page<UserInfo> getPageOfUsers(Pageable pageable, String filter);
 
 }

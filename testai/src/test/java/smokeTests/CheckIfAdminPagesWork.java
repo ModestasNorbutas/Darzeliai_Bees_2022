@@ -32,11 +32,7 @@ public class CheckIfAdminPagesWork  extends GeneralMethods {
 	  // check Prasymu statistika page
 	  checkPages.clickNavPrasymuStatistikaAdmin();
 	  checkPages.assertPrasymuStatistikaPageTitle();
-	  
-	  // check Prasymu redagavimas page
-	  checkPages.clickNavPrasymuRedagavimas();
-	  checkPages.assertPrasymuRedagavimasPageTitle();
-	  
+
 	  // check Ivykiu zurnalas page
 	  checkPages.clickNavIvykiuZurnalas();
 	  checkPages.assertIvykiuZurnalasPageTitle();

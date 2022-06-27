@@ -205,13 +205,9 @@ public class ApplicationRESTTest {
 		MvcResult confirm = mvc.perform(post("/api/queue/confirm")).andExpect(status().isOk()).andReturn();
 		assertEquals(200, confirm.getResponse().getStatus());
 
-		MvcResult getQueueInfo = mvc.perform(get("/api/eile/manager/queue/").param("page", "1").param("size", "10"))
-				.andExpect(status().isOk()).andReturn();
+		MvcResult getQueueInfo = mvc.perform(get("/api/eile/manager/queue/")
+				.param("page", "1").param("size", "10").param("filter", "49902251236")).andExpect(status().isOk()).andReturn();
 		assertEquals(200, getQueueInfo.getResponse().getStatus());
-
-		MvcResult getQueueInfoByChild = mvc.perform(get("/api/eile/manager/queue/{childPersonalCode}", "49902251236")
-				.param("page", "1").param("size", "10")).andExpect(status().isOk()).andReturn();
-		assertEquals(200, getQueueInfoByChild.getResponse().getStatus());
 
 	}
 

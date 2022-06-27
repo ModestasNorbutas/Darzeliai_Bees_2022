@@ -1,6 +1,7 @@
 package it.akademija.security;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -26,7 +27,9 @@ import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -58,19 +61,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private JournalService journalService;
 
+	@SuppressWarnings("deprecation")
 	@Bean
 	public PasswordEncoder getPasswordEncoder() {
 
-		BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
-
-		BcryptPepperEncoder pepper = new BcryptPepperEncoder();
-
-		Map<String, PasswordEncoder> encoders = Map.of("pepper", pepper);
-		DelegatingPasswordEncoder delegatingPasswordEncoder = new DelegatingPasswordEncoder("pepper", encoders);
-
-		delegatingPasswordEncoder.setDefaultPasswordEncoderForMatches(bcrypt);
-
-		return delegatingPasswordEncoder;
+		Map<String, PasswordEncoder> encoders = new HashMap<>();
+		
+		encoders.put("sha256", new StandardPasswordEncoder("Bees"));
+		encoders.put("bcrypt", new BcryptPepperEncoder());
+	    
+		DelegatingPasswordEncoder passwordEncoder = 
+				new DelegatingPasswordEncoder("sha256", encoders);
+	    
+		passwordEncoder.setDefaultPasswordEncoderForMatches(encoders.get("bcrypt"));
+		
+	    
+		return passwordEncoder;
 	}
 
 	@Autowired

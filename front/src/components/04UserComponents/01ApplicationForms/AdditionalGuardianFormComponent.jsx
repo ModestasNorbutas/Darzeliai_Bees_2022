@@ -6,15 +6,14 @@ export default function AdditionalGuardianFormComponent(props) {
   return (
     <div>
       <div className="form">
-        <div className="row py-1">
-          <div className="col-7">
-            <h6 className="formHeader">Kito globėjo duomenys</h6>
+        <div className="formHeader application-form-header row">
+          <div className="col-8 col-xl-7 col-xxl-6">
+            <h6>Kito globėjo duomenys</h6>
           </div>
-          <div className="col-5">
+          <div className="col-4 col-xl-5 col-xxl-6">
             <button
               id="btnEnableAdditionalGuardian"
-              className="btn btn-primary btn-sm btn-block float-end my-1"
-              style={{ padding: "4px" }}
+              className="btn btn-primary btn-sm btn-block float-end"
               onClick={props.enableAdditionalGuardian}
               disabled={props.registrationDisabled}
             >

@@ -1,8 +1,5 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-
-import '../../App.css';
-
 import http from '../00Services/httpService';
 import apiEndpoint from '../00Services/endpoint';
 import AuthContext from "../00Services/AuthContext";
@@ -28,7 +25,6 @@ export default function Logout() {
           button: "Gerai"
         })
       });
-
   }
 
   return (

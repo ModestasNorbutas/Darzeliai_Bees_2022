@@ -19,8 +19,8 @@ public class KindergartenChoiseService {
 	@Autowired
 	KindergartenService kindergartenService;
 
-	public void saveKindergartenChoise(KindergartenChoise kindergartenChoise) {
-		kindergartenChoiseDAO.save(kindergartenChoise);
+	public KindergartenChoise saveKindergartenChoise(KindergartenChoise kindergartenChoise) {
+		return kindergartenChoiseDAO.save(kindergartenChoise);
 	}
 
 	public void updateKindergartenChoises(

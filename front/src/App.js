@@ -1,12 +1,13 @@
 import React, { useEffect, useReducer } from "react";
 import "./index.css";
 import "./App.css";
+import "leaflet/dist/leaflet.css";
+import "leaflet-geosearch/dist/geosearch.css";
 import Spinner from "./components/05ReusableComponents/Spinner";
 import swal from "sweetalert";
 import AuthContext from "./components/00Services/AuthContext";
 import http from "./components/00Services/httpService";
 import apiEndpoint from "./components/00Services/endpoint";
-
 import NotFound from "./components/01CommonComponents/02NotFound/NotFound";
 import AdminRoutes from "./components/06Routes/AdminRoutes";
 import ManagerRoutes from "./components/06Routes/ManagerRoutes";
